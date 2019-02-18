@@ -1,0 +1,16 @@
+Load environment with
+	. envs && pipenv shell
+
+Then run server
+	cd backend
+	python manage.py runserver 0:8000
+
+	
+Open http://172.22.1.177:8000/
+
+Backend Admin:
+http://172.22.1.177:8000/admin
+
+List Experiments:
+http://172.22.1.177:8000/api/v1/experiments/
+

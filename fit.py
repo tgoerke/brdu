@@ -28,13 +28,23 @@ def main(csvfile,opath):
 
     fig = plt.figure(1,figsize=(5,4))
 
-    plt.plot(tim,dat,'.',label='Measurements')
 
     tf = np.linspace(0.01,np.max(tim)*1.1,1000)
-    plt.plot(tf,label_lh.brdu_model(tf,fit['Tc']['value'],fit['r']['value'],fit['GF']['value']),label='Nowakofski model')
-
+    tf2 = np.linspace(0.01,np.max(tim)*1.1,100)
+    d = label_lh.dist()
+    prob = np.zeros(len(tf2))
+    nc = np.mean(ncell)
+    for t_n,t in enumerate(tf2):
+    	prob[t_n] = d.pmf_mean(nc,fit['Tc']['value'],fit['r']['value'],fit['GF']['value'],fit['sigma_cell']['value'],fit['sigma_sample']['value'],t)	
+   
+    plt.plot(tim,dat,'k.',label='Measurements',zorder=4)
+    colorp =  np.array([0.5647058823529412, 0.9333333333333333, 0.5647058823529412]) - np.array([0.4,0.1,0.4])
+    plt.plot(tf2,prob,label='probabilistic model',color=colorp,lw=2,zorder=2)
+    plt.plot(tf,label_lh.brdu_model(tf,fit['Tc']['value'],fit['r']['value'],fit['GF']['value']),label='Nowakowski model',color='#CC79A7',zorder=1)
+#grün dicker, unsers oben, punkte über allem [original units]
+    plt.ylim(0,1.1)
     plt.legend()
-    plt.xlabel('time')
+    plt.xlabel('time [original units]')
     plt.ylabel('labeling fraction')
 
     fig.savefig(opath+'.png')
