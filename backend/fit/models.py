@@ -8,3 +8,5 @@ class Experiments(models.Model):
 
     def __str__(self):
         return "{} - {}".format(self.title, self.labeling_fraction)
+
+
