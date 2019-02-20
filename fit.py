@@ -8,7 +8,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 import json
-import .label_lh
+import label_lh
 
 
 def main(csvfile,opath):
