@@ -14,3 +14,12 @@ http://172.22.1.177:8000/admin
 List Experiments:
 http://172.22.1.177:8000/api/v1/experiments/
 
+
+Install requirements for brdu:
+
+sudo apt-get install gcc python3-dev
+pip install numpy scipy iminuit matplotlib
+
+Test run:
+python3 fit.py -i test.csv -o out/123
+
