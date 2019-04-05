@@ -1,0 +1,32 @@
+<!-- Editable table -->
+<div class="card">
+  <div class="card-body">
+    <div id="table" class="table-editable">
+      <!--<span class="table-add float-right mb-3 mr-2"><a href="#!" class="text-success"><i class="fa fa-plus fa-2x"
+            aria-hidden="true"></i></a></span>
+      -->
+      <form action="/" method="post"
+      {% csrf_token %}
+      <table class="table table-bordered table-responsive-md table-striped text-center">
+        <tr>
+          {% for field in form %} 
+          <th class="text-center">{{ field.label_tag }}</th>
+          {% endfor %}
+          <th class="text-center">Edit</th>
+        </tr>
+        <tr>
+          {% for field in form %}
+          <td class="pt-3-half" contenteditable="true"{{ field }}</td>
+          {% endfor %} 
+          <td>
+            <span class="table-remove"><button type="button" class="btn btn-danger btn-rounded btn-sm my-0">Remove</button></span>
+          </td>
+        </tr>
+      </table>
+      </form>
+      <button style="font-size:12px">Add line <i class="fa fa-plus"></i></button>
+    </div>
+  </div>
+</div>
+<!-- Editable table -->
+

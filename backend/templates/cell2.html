@@ -1,0 +1,40 @@
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+<div class="container-fluid">
+<h2>Cell Cycle Analyzer</h2>
+<p class="lead">Calculate cell cycle parameters from continuous labeling assays</p>
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-12">
+      <div class="row">
+		<div class="col-md-6">
+          <h3>Insert experimental data:</h3>
+            <!-- Form-->{% include "formset.html" %} 
+	   </div>
+				<div class="col-md-6">
+          <h3>Or upload CSV file:</h3>
+          <!-- Upload-->{% include "parts/upload.html" %} 
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+            <h1> </h1>
+            <!--<button class="btn btn-primary" type="button">Calculate</button>  -->
+        </div>
+    </div>
+    <div class="row">
+	<div class="col-md-4">
+    <h3>Result:</h3>
+    Unbiased parameter estimates from probabilitic model
+    <!-- Results table-->{% include "parts/results_table.html" %} 
+    </div>
+		<div class="col-md-6">
+    <!-- Result-->{% include "parts/result_img.html" %} 
+		</div>
+	</div>
+</div>        
+
+

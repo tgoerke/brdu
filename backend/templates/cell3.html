@@ -1,0 +1,43 @@
+{% extends "django_sb_admin/base.html" %}{% load static %}
+<div class="container-fluid">
+  {% block sb_admin_title %}<h2>Cell Cycle Analyzer</h2>
+{% endblock sb_admin_title %}  
+{% block sb_admin_subheading %}<p class="lead">Calculate cell cycle parameters from
+cumulative labeling data</p>
+{% endblock sb_admin_subheading %}  
+{% block sb_admin_breadcrumb %}<i class="fa fa-dashboard"></i>  <a href="index.html">Calculate</a>{% endblock sb_admin_breadcrumb %}
+{% block sb_admin_breadcrumb_active %}<li class="active">
+      <i class="fa fa-file""></i> Data
+ </li>{% endblock sb_admin_breadcrumb_active %}
+
+{% block sb_admin_content %}
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-12">
+      <div class="row">
+				<div class="col-md-6">
+        {% include "parts/table1.html" %}
+          <h3>Insert experimental data:</h3>
+            <!-- Params-->{% include "parts/table3.html" %} 
+            <!-- Editable Table-->{% include "parts/table4.html" %} 
+            <!--<button class="btn btn-primary" type="button">Calculate</button> 
+            -->
+				  </div>
+				<div class="col-md-6">
+          <!-- Upload-->{% include "parts/upload.html" %} 
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+    <!-- Result-->{% include "parts/result.html" %} 
+    </div>
+		<div class="col-md-6">
+    <!-- Upload description-->{% include "parts/upload_desc.html" %} 
+		</div>
+	</div>
+</div>        
+
+
+{% endblock sb_admin_content %}

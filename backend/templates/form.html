@@ -1,0 +1,18 @@
+<form action="/" method="post">
+    {% csrf_token %}
+
+		{% for field in form %}
+				<div class="fieldWrapper">
+						{{ field.errors }}
+						<label> 
+								{{ field.label_tag }}
+						</label>
+					 <div>
+							 {{ field }}
+					 </div>
+				</div>
+		{% endfor %}
+
+    <h2> </h2>
+    <button type="submit" class="btn btn-primary">Calculate</button>
+</form>
