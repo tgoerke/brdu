@@ -27,6 +27,16 @@ Install requirements for brdu:
 sudo apt-get install gcc python3-dev
 pip install numpy scipy iminuit matplotlib
 
-Test run:
-python3 fit.py -i test.csv -o out/123
+Test run of fit code
+python3 fit.py -i backend/fit/test.csv -o 123
 
+Install Django web framework
+pip install django django-rest-framework
+
+## Python 3.4
+
+To use older python 3.4 change the version string in the Pipfile
+and initialize pipenv with
+```
+. envs && pipenv --python /usr/bin/python3.4 shell
+```
