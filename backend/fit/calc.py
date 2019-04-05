@@ -11,7 +11,8 @@ import json
 from .label_lh import *
 
 
-def calc(csvfile="fit/test.csv",opath="fit/test"):
+def calc(params,csvfile="fit/test.csv",opath="fit/static/123"):
+    print(params)
     dat,tim,ncell = np.loadtxt(csvfile).T
     lh = asym_lh(dat,tim,ncell)
     mi = Minuit(lh.compute, Tc=1.0, r=0.3,GF=1.0,fix_GF=False,sigma_sample=0.25,sigma_cell=0.3, \

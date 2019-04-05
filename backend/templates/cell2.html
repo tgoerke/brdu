@@ -37,4 +37,10 @@
 	</div>
 </div>        
 
+<ul>
+    {% for name, result in fit.items %}
+    <li>{{name}} - {{result.value}} - {{result.2sigma}}</li>
+    {% endfor %}
+</ul>
+
 

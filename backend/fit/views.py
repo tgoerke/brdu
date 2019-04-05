@@ -11,6 +11,8 @@ from django.shortcuts import render
 from .forms import InputForm
 from django.forms import formset_factory
 
+import json
+
 def form(request):
     InputFormSet = formset_factory(InputForm, extra=5)
     if request.method == 'POST':
@@ -19,11 +21,8 @@ def form(request):
         formset = InputFormSet(request.POST, request.FILES)
         # check whether it's valid:
         if formset.is_valid():
-            for f in formset: 
-                labeling_fraction = f.cleaned_data.get('labeling_fraction')
-                print(labeling_fraction)
-            results = calc()
-            return render(request, 'cell2.html', {'formset': formset})
+            results = calc(formset.cleaned_data)
+            return render(request, 'cell2.html', { 'formset': formset, 'fit': results })
 
     # if a GET (or any other method) we'll create a blank form
     else:
