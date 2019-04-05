@@ -1,20 +1,21 @@
+# BrdU cell cycle tool
+
+Calculate cell cycle parameters from continuous labeling assays
+
 Load environment with
 	. envs && pipenv shell
 
-Then run server
+Then run backend server
 	cd backend
 	python manage.py runserver 0:8000
-
 	
-Open http://172.22.1.177:8000/
+Open http://127.0.0.1:8000/
 
 Backend Admin:
-http://172.22.1.177:8000/admin
-
-List Experiments:
-http://172.22.1.177:8000/api/v1/experiments/
+http://127.0.0.1:8000/admin
 
 
+## Installation
 Install requirements for brdu:
 
 sudo apt-get install gcc python3-dev
