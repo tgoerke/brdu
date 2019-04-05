@@ -1,38 +1,33 @@
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.views import generic
+
+from fit.models import Data
 from .calc import calc
 
-from rest_framework import generics
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.parsers import MultiPartParser, FormParser
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+from .forms import InputForm
+from django.forms import formset_factory
 
-from .models import Experiments
-from .serializers import ExperimentSerializer
-from .serializers import FileSerializer
+def form(request):
+    InputFormSet = formset_factory(InputForm, extra=5)
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        #form = InputForm(request.POST)
+        formset = InputFormSet(request.POST, request.FILES)
+        # check whether it's valid:
+        if formset.is_valid():
+            for f in formset: 
+                labeling_fraction = f.cleaned_data.get('labeling_fraction')
+                print(labeling_fraction)
+            results = calc()
+            return render(request, 'cell2.html', {'formset': formset})
 
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        formset = InputFormSet()
 
-def index(request):
-    #queryset = Experiments.objects.all()
-    #results = calc()
-    #return Response({'experiments': result})
+    return render(request, 'cell2.html', {'formset': formset})
 
-    return HttpResponse("Hello, world. You're at the fit index.")
-
-class ListExperimentsView(generics.ListAPIView):
-    """
-    Provides a get method handler.
-    """
-    results = calc()
-    queryset = Experiments.objects.all()
-    serializer_class = ExperimentSerializer
-
-class FileView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
-    def post(self, request, *args, **kwargs):
-      file_serializer = FileSerializer(data=request.data)
-      if file_serializer.is_valid():
-        file_serializer.save()
-        return Response(file_serializer.data, status=status.HTTP_201_CREATED)
-      else:
-        return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

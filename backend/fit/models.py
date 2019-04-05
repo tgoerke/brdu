@@ -14,3 +14,10 @@ class File(models.Model):
     remark = models.CharField(max_length=20)
     timestamp = models.DateTimeField(auto_now_add=True)
 
+class Data(models.Model):
+    # created = models.DateTimeField(auto_now_add=True)
+    measurement_time = models.CharField(max_length=100, blank=True, default='')
+    labeling_fraction = models.CharField(max_length=100, blank=True, default='')
+    number_of_cells = models.CharField(max_length=100, blank=True, default='')
+    class Meta:
+        ordering = ('number_of_cells',)
