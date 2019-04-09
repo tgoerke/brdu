@@ -18,10 +18,10 @@
               Cell cycle length &tau;
 						</td>
 						<td>
-              {{fit.sigma_cell.value}}	
+              {{fit.Tc.value|floatformat:6}}	
 						</td>
 						<td>
-              {{fit.sigma_cell.2sigma}}
+              {{fit.Tc.2sigma|floatformat:6}}
 						</td>
 					</tr>
 					<tr class="table-success">
@@ -29,10 +29,10 @@
 							Relative S-phase length f
 						</td>
 						<td>
-						  0.3238
+              {{fit.r.value|floatformat:6}}
 						</td>
 						<td>
-						  0.0471
+              {{fit.r.2sigma|floatformat:6}}
 						</td>
 					</tr>
 					<tr class="table-warning">
@@ -40,10 +40,10 @@
 							Growth fraction g
 						</td>
 						<td>
-						   0.9811
+              {{fit.GF.value|floatformat:6}}
 						</td>
 						<td>
-						   0.0166
+              {{fit.GF.2sigma|floatformat:6}}
 						</td>
 					</tr>
 		        	<tr class="table-warning">
@@ -51,10 +51,10 @@
 					Cell level variability &sigma;<sub>C</sub>	
 						</td>
 						<td>
-						   0.4773
+              {{fit.sigma_cell.value|floatformat:6}}
 						</td>
 						<td>
-						   0.2106	
+              {{fit.sigma_cell.2sigma|floatformat:6}}
 						</td>
 					</tr>
                     <tr class="table-danger">
@@ -62,10 +62,10 @@
                  Sample level variability &sigma;
 						</td>
 						<td>
-					       0.1813 
+              {{fit.sigma_sample.value|floatformat:6}}
 						</td>
 						<td>
-						   0.0620
+              {{fit.sigma_sample.2sigma|floatformat:6}}
 						</td>
 					</tr>
 
