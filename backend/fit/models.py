@@ -16,8 +16,9 @@ class File(models.Model):
 
 class Data(models.Model):
     # created = models.DateTimeField(auto_now_add=True)
-    measurement_time = models.CharField(max_length=100, blank=True, default='')
-    labeling_fraction = models.CharField(max_length=100, blank=True, default='')
-    number_of_cells = models.CharField(max_length=100, blank=True, default='')
+    #measurement_time = models.CharField(max_length=100, blank=True, default='')
+    measurement_time = models.FloatField()
+    labeled_cells = models.IntegerField()
+    number_of_cells = models.IntegerField()
     class Meta:
-        ordering = ('number_of_cells',)
+        ordering = ('measurement_time',)

@@ -2,14 +2,17 @@ import numpy as np
 import scipy as sp
 import scipy.stats
 
-class asym_lh:#cdef is here to reduce name lookup for __call__
+class asym_lh:
+    ''' class with the likelihood for the asymetric cell labelling assays 
+        usable for minuit
+    '''
 
     def __init__(self,data,times,ncell):
-        ''' data = labeling fraction
+        ''' data = number of labeld cells
             times = time for labeling fraction
-            ncell = number of cells
+            ncell = number of cells 
         '''
-        self.data = np.round(data*ncell)
+        self.data = np.round(data)
         self.datalen = np.size(data)
         self.times = times
         if np.size(ncell) !=  self.datalen:
@@ -74,17 +77,12 @@ class asym_lh:#cdef is here to reduce name lookup for __call__
         return sp.stats.binom.pmf(self.data[n], self.ncell[n], self.GF*self.logn(self.sigma_cell,TC_,self.r,n) ) * self.pdf_LN(TC_, self.Tc, self.sigma_sample)
     
     
-class dist:#cdef is here to reduce name lookup for __call__
-    
-    def __init__(self,):
-        ''' data = labeling fraction
-            times = time for labeling fraction
-            ncell = number of cells
-        '''
-        
-        
-    
-    
+class dist:
+    ''' distribution for the asymetric labelling assay   '''
+
+    def __init__(self):
+        pass
+
     def log_params(self, mu, sigma):
         """ A transformation of paramteres such that mu and sigma are the 
             mean and variance of the log-normal distribution and not of
@@ -115,8 +113,6 @@ class dist:#cdef is here to reduce name lookup for __call__
 
     def pmf_f(self,ncell,Tc,r, GF, sigma_cell,sigma_sample, t, x):
         """ pmf for the number of labelled cells
-            to test: using epsabs=0.1 and epsrel=0.1 in quad might significantly 
-            speed up the computation without loosing too much precision
         """
         self.ncell = ncell
         self.Tc = Tc
@@ -134,9 +130,7 @@ class dist:#cdef is here to reduce name lookup for __call__
         return sp.stats.binom.pmf(x, self.ncell, self.GF*self.logn(self.sigma_cell,TC_,self.r) ) * self.pdf_LN(TC_, self.Tc, self.sigma_sample)
 
     def pmf_mean(self,ncell,Tc,r, GF, sigma_cell,sigma_sample, t):
-        """ pmf for the number of labelled cells
-            to test: using epsabs=0.1 and epsrel=0.1 in quad might significantly 
-            speed up the computation without loosing too much precision
+        """ mean number of labelled cells
         """
         self.ncell = ncell
         self.Tc = Tc
@@ -148,84 +142,54 @@ class dist:#cdef is here to reduce name lookup for __call__
         
         #P =  sp.integrate.quadrature(self.fm, max(0.0001,Tc-(sigma_sample*5)), Tc+(sigma_sample*10))[0] 
         P = sp.integrate.fixed_quad(self.fm, max(0.0001,Tc-(sigma_sample*5)), Tc+(sigma_sample*10),n=200)[0]
-        return P
+        return ncell*P
 
 
     def fm(self, TC_):
         return  self.GF*self.logn(self.sigma_cell,TC_,self.r) * self.pdf_LN(TC_, self.Tc, self.sigma_sample)
     
-class dist1(dist):
-    def __init__(self,):
-        dist.__init__(self,)
-       
-    def pmf_mean(self,ncell,Tc,r, GF, sigma_cell,sigma_sample, t):
-        """ pmf for the number of labelled cells
-            to test: using epsabs=0.1 and epsrel=0.1 in quad might significantly 
-            speed up the computation without loosing too much precision
-        """
-        self.ncell = ncell
-        self.Tc = Tc
-        self.r = r
-        self.GF = GF
-        self.sigma_cell = sigma_cell
-        self.sigma_sample = sigma_sample
-        self.t = t
-        
-        #P =  sp.integrate.quadrature(self.fm, max(0.0001,Tc-(sigma_sample*5)), Tc+(sigma_sample*10))[0] 
-        P = sp.integrate.fixed_quad(self.fm, max(0.0001,Tc-(sigma_sample*5)), Tc+(sigma_sample*10),n=200)[0]
-        return P / ncell**2
 
-
-    def fm(self, TC_):
-        return  self.ncell*self.GF*self.logn(self.sigma_cell,TC_,self.r)  * (1 - self.GF*self.logn(self.sigma_cell,TC_,self.r)  ) \
-    * self.pdf_LN(TC_, self.Tc, self.sigma_sample)
-    
-
-class dist2(dist):
-    def __init__(self,):
-        dist.__init__(self,)
-       
-    def pmf_mean_t(self,ncell,Tc,r, GF, sigma_cell,sigma_sample, t):
-        """ pmf for the number of labelled cells
-            to test: using epsabs=0.1 and epsrel=0.1 in quad might significantly 
-            speed up the computation without loosing too much precision
-        """
-        self.ncell = ncell
-        self.Tc = Tc
-        self.r = r
-        self.GF = GF
-        self.sigma_cell = sigma_cell
-        self.sigma_sample = sigma_sample
-        self.t = t
-        
-        A = self.pmf_mean()**2
-        B = self.pmf_mean2()
-        return B-A
-        
-    def pmf_mean(self):
-        #P =  sp.integrate.quadrature(self.fm, max(0.0001,Tc-(sigma_sample*5)), Tc+(sigma_sample*10))[0] 
-        P = sp.integrate.fixed_quad(self.fm, max(0.0001,self.Tc-(self.sigma_sample*5)), self.Tc+(self.sigma_sample*10),n=200)[0]
-        return P
-
-
-    def fm(self, TC_):
-        return  self.GF*self.logn(self.sigma_cell,TC_,self.r) * self.pdf_LN(TC_, self.Tc, self.sigma_sample)   
-    
-    def pmf_mean2(self):
-        #P =  sp.integrate.quadrature(self.fm, max(0.0001,Tc-(sigma_sample*5)), Tc+(sigma_sample*10))[0] 
-        P = sp.integrate.fixed_quad(self.fm2, max(0.0001,self.Tc-(self.sigma_sample*5)), self.Tc+(self.sigma_sample*10),n=200)[0]
-        return P
-
-
-    def fm2(self, TC_):
-        return  self.GF**2*self.logn(self.sigma_cell,TC_,self.r)**2 * self.pdf_LN(TC_, self.Tc, self.sigma_sample)   
-    
-    
-    
 @np.vectorize
-def brdu_model(t,TC, r , GF):
-    S = TC*r
-    if t < TC - S:
-        return GF * (t + S) / TC
+def cla_det_model(t, tc=0.2, f=0.3, GF=0.5, mode=1, **kwargs):
+    """ Model for labeling assays in vivo.
+        Based on Lefevre et al., 2013 and extended with an initial
+        growth fraction.
+        
+        t    ... time after start of labeling
+        S    ... absolute length of S-Phase
+        G1   ... absolute length of G1-Phase
+        G2M  ... absolute length of G2-Phase and M-Phase
+        rmode    ... mean number of daughter cells after cell division remaining
+                 in the population
+        GF   ... initial growth fraction
+        
+        Lefevre, J., Marshall, D. J., Combes, A. N., Ju, A. L., Little, M. H.
+        & Hamilton, N. A. (2013). Modelling cell turnover in a complex tissue
+        during development. Journal of Theoretical Biology, 338, 66-79.
+    """
+    r = mode
+    TC = tc
+    S = TC*f
+    G2M = 0.5*(1-S)
+    if G2M < 0:
+        return sp.nan
+    if S + G2M > TC:
+        return sp.nan
     else:
-        return GF
+        if r==1:
+            if t < TC - S:
+                return GF * (t + S) / TC
+            else:
+                return GF
+        else:
+            # calculate the growth fraction at time t
+            g = ( ( GF * r ** (t / TC) ) / ( GF * r ** (t / TC) + (1 - GF) ) )
+            if t < G2M:
+                return  g * ((r ** ( ( G2M + S ) / TC ) - r ** (( G2M - t ) / TC) ) / (r - 1.0) )
+            elif t < TC - S:
+                return g * (1.0 - ( r ** ( ( TC + G2M - t ) / TC ) - r ** ( ( G2M  + S) / TC ) ) / (r - 1.0) )
+            else:
+                return g
+
+
+

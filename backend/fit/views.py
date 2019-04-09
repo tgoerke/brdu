@@ -20,10 +20,21 @@ def form(request):
         #form = InputForm(request.POST)
         formset = InputFormSet(request.POST, request.FILES)
         # check whether it's valid:
+        data_form = formset.cleaned_data
         if formset.is_valid():
-            results = calc(formset.cleaned_data)
+            times=[];datas=[];ncells=[];
+            for i in data_form:
+                try:
+                    times.append(i['measurement_time'])
+                    datas.append(i['labeled_cells'])
+                    ncells.append(i['number_of_cells'])
+                except:
+                    pass
+            if len(ncells) == len(datas) and len(datas) == len(times) and len(times)>0:
+                results = calc(ncells,times,datas)
+            else:
+                results = calc()
             return render(request, 'cell2.html', { 'formset': formset, 'fit': results })
-
     # if a GET (or any other method) we'll create a blank form
     else:
         formset = InputFormSet()
