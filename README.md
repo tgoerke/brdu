@@ -21,11 +21,10 @@ http://127.0.0.1:8000/admin
 
 
 ## Installation
-Install requirements for brdu:
+Install requirement:
 
 ```
-sudo apt-get install gcc python3-dev
-pip install numpy scipy iminuit matplotlib
+pipenv install --ignore-pipfile
 ```
 
 Test run of fit code
