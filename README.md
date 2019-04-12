@@ -4,21 +4,19 @@ Calculate cell cycle parameters from continuous labeling assays
 
 Load environment with
 ```
-	. envs && pipenv shell
+. envs && pipenv shell
 ```
-
 
 Then run backend server
 ```
-	cd backend
-	python manage.py runserver 0:8000
+cd backend
+python manage.py runserver 0:8000
 ```
-	
-Open http://127.0.0.1:8000/
 
-Backend Admin:
-http://127.0.0.1:8000/admin
-
+Or in one line
+```
+(cd backend && pipenv run python manage.py runserver 0:8000)
+```
 
 ## Installation
 Install requirement:
