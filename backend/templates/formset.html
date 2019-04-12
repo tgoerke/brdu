@@ -1,4 +1,4 @@
-<form method="post" action="/">
+<form method="post" action="/row={{row}}">
     {% csrf_token %}
     {{ formset.management_form }}
     <table>
@@ -14,7 +14,7 @@
                 {% endif %}
                 <tr>
                     {% for field in form.visible_fields %}
-                        <td>
+                        <td >
                             {# Include the hidden fields in the form #}
                             {% if forloop.first %}
                                 {% for hidden in form.hidden_fields %}
@@ -28,7 +28,11 @@
                 </tr>
             {% endfor %}
     </table>
-    <h2> </h2>
-    <button type="submit" class="btn btn-primary">Calculate</button>
+    Depending on your location settings, the optional decimal separator for time is '.' or ','.<br>
+    <button type="submit" name="calc" class="btn btn-primary">Calculate</button>
+    <button type="submit" name="clear" class="btn btn-primary">Clear all data</button> 
+    <button type="submit" name="add" class="btn btn-primary">Add 10 rows</button> 
+    <button type="submit" name="update" class="btn btn-primary">Clear empty lines</button> 
+ 
 </form>
 

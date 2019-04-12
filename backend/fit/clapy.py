@@ -150,46 +150,20 @@ class dist:
     
 
 @np.vectorize
-def cla_det_model(t, tc=0.2, f=0.3, GF=0.5, mode=1, **kwargs):
+def cla_det_model(t, tc=0.2, f=0.3, GF=0.5,  **kwargs):
     """ Model for labeling assays in vivo.
-        Based on Lefevre et al., 2013 and extended with an initial
+        Based on Nowakowski et al.,  and extended with an initial
         growth fraction.
-        
         t    ... time after start of labeling
         S    ... absolute length of S-Phase
-        G1   ... absolute length of G1-Phase
-        G2M  ... absolute length of G2-Phase and M-Phase
-        rmode    ... mean number of daughter cells after cell division remaining
-                 in the population
         GF   ... initial growth fraction
-        
-        Lefevre, J., Marshall, D. J., Combes, A. N., Ju, A. L., Little, M. H.
-        & Hamilton, N. A. (2013). Modelling cell turnover in a complex tissue
-        during development. Journal of Theoretical Biology, 338, 66-79.
     """
-    r = mode
     TC = tc
     S = TC*f
-    G2M = 0.5*(1-S)
-    if G2M < 0:
-        return sp.nan
-    if S + G2M > TC:
-        return sp.nan
+    if t < TC - S:
+       return GF * (t + S) / TC
     else:
-        if r==1:
-            if t < TC - S:
-                return GF * (t + S) / TC
-            else:
-                return GF
-        else:
-            # calculate the growth fraction at time t
-            g = ( ( GF * r ** (t / TC) ) / ( GF * r ** (t / TC) + (1 - GF) ) )
-            if t < G2M:
-                return  g * ((r ** ( ( G2M + S ) / TC ) - r ** (( G2M - t ) / TC) ) / (r - 1.0) )
-            elif t < TC - S:
-                return g * (1.0 - ( r ** ( ( TC + G2M - t ) / TC ) - r ** ( ( G2M  + S) / TC ) ) / (r - 1.0) )
-            else:
-                return g
+       return GF
 
 
 
