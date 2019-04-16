@@ -256,7 +256,6 @@ def web_fit(ncells,times,datas,opath,name):
     fig = plt.figure(1,figsize=(5,4))
 
 
-    tf = np.linspace(0.01,np.max(tim)*1.1,1000)
     tf2 = np.linspace(0.01,np.max(tim)*1.1,100)
     d = dist()
     prob = np.zeros(len(tf2))
@@ -266,7 +265,6 @@ def web_fit(ncells,times,datas,opath,name):
     plt.plot(tim,dat/ncell,'k.',label='Measurements',zorder=4)
     colorp =  np.array([0.5647058823529412, 0.9333333333333333, 0.5647058823529412]) - np.array([0.4,0.1,0.4])
     plt.plot(tf2,prob/nc,label='probabilistic model',color=colorp,lw=2,zorder=2)
-    plt.plot(tf,cla_det_model(tf,fit['Tc']['value'],fit['r']['value'],fit['GF']['value']),label='Nowakowski model',color='#CC79A7',zorder=1)
     plt.ylim(0,1.1)
     plt.legend()
     plt.xlabel('time [original units]')
