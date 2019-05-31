@@ -13,6 +13,7 @@ urlpatterns = [
     #path('', views.index, name='index'),
     #path('',  RedirectView.as_view(url='/row=10'), name='cellcycle'),
     path('', views.form, name='cellcycle'),
+    path('index.html', views.form, name='cellcycle'),
     path('row=<int:row>', views.form, name='cellcycle'),
     #path('experiments/', ListExperimentsView.as_view(), name="experiments-all"),
     #path('upload/', FileView.as_view(), name='file-upload'),
