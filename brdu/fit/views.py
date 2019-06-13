@@ -7,6 +7,7 @@ from fit.models import Data
 from .calc import calc
 
 from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.shortcuts import render
 from .forms import InputForm
 from django.forms import formset_factory
@@ -23,7 +24,7 @@ def form(request,row=20):
         formset = InputFormSet(request.POST, request.FILES)
         if 'clear' in request.POST:
             request.session["data"] =[]
-            return redirect(form, row=10 )
+            return HttpResponseRedirect(reverse('fit:form', args=[10]))
         if 'add' in request.POST:
             run_add = True
         else:
@@ -60,9 +61,9 @@ def form(request,row=20):
                     results = calc(ncells,times,datas)
                     return render(request, 'cell2.html', { 'formset': formset, 'fit': results,'row':row })
             if run_add:
-                return redirect(form, row=row+10)
+                return HttpResponseRedirect(reverse('fit:form', args=[row+10]))
             if run_update:
-                return redirect(form, row=len(ncells) )
+                return HttpResponseRedirect(reverse('fit:form', args=[len(ncells)]))
             return render(request, 'cell2.html', { 'formset': formset, 'row':row })
 
         else:

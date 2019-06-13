@@ -1,0 +1,6 @@
+venv/
+run/
+brdu/static
+*.pyc
+gunicorn_start.sh
+brdu/fit/static/123.png
