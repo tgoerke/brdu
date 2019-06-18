@@ -24,6 +24,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fit.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "brdu.settings")
 
 application = get_wsgi_application()

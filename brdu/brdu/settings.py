@@ -25,7 +25,7 @@ SECRET_KEY = 'nd6bhj6v)wm1pvh-0mregnkfbx4#*6yu^!+8#^nnfcsu7@&0d*'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '172.22.1.177']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '172.22.1.177']
 
 
 # Application definition
@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # My apps
     'fit',
     'rest_framework',
 ]
@@ -51,7 +53,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'fit.urls'
+ROOT_URLCONF = 'brdu.urls'
 
 TEMPLATES = [
     {
@@ -69,7 +71,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'fit.wsgi.application'
+WSGI_APPLICATION = 'brdu.wsgi.application'
 
 
 # Database
@@ -121,8 +123,22 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# List of static assets that aren’t tied to a particular app (i. e. the static/ directories inside the apps)
+
+#STATICFILES_DIRS = [
+#    os.path.join(BASE_DIR, "static"),
+#    '/var/www/static/',
+#]
+
+# Run "python manage.py collectstatic" to copy all files from the static folders into the STATIC_ROOT directory
+# https://docs.djangoproject.com/en/2.1/howto/static-files/#deployment
+
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
 # https://blog.vivekshukla.xyz/uploading-file-using-api-django-rest-framework/
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-
+#USE_X_FORWARDED_HOST = True
+#FORCE_SCRIPT_NAME = "/cellcycle"
