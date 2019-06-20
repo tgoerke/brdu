@@ -14,17 +14,19 @@ from django.forms import formset_factory
 from django.shortcuts import redirect
 import json
 
+# Debugging
+from IPython import embed
 
-
-def form(request,row=20):
+def form(request,row=10):
     InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         #form = InputForm(request.POST)
         formset = InputFormSet(request.POST, request.FILES)
+        #formset = InputFormSet(request.FILES)
         if 'clear' in request.POST:
-            request.session["data"] =[]
-            return HttpResponseRedirect(reverse('fit:form', args=[10]))
+            request.session["data"] = []
+            return redirect('fit:index')
         if 'add' in request.POST:
             run_add = True
         else:
@@ -33,11 +35,11 @@ def form(request,row=20):
             run_calc = True
         else:
             run_calc = False
-
         if 'update' in request.POST:
             run_update = True
         else:
             run_update = False
+
         # check whether it's valid:
         if formset.is_valid():
             data_form = formset.cleaned_data
@@ -78,4 +80,3 @@ def form(request,row=20):
             formset = InputFormSet()
 
     return  render(request, 'cell2.html', {'formset': formset,'row':row})
-
