@@ -14,8 +14,15 @@ from django.forms import formset_factory
 from django.shortcuts import redirect
 import json
 
-# Debugging
+# CSV upload
+import pandas as pd
+
+# Debugging and logging
 from IPython import embed
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 def form(request,row=10):
     InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
@@ -66,6 +73,22 @@ def form(request,row=10):
                 return HttpResponseRedirect(reverse('fit:form', args=[row+10]))
             if run_update:
                 return HttpResponseRedirect(reverse('fit:form', args=[len(ncells)]))
+
+            # Handle CSV file
+            if 'upload_csv' in request.POST:
+                if 'csv_file' in request.FILES:
+                    csv_file = request.FILES['csv_file']
+
+                    # Write file to disk
+                    with open(csv_file.name, 'wb') as fout:
+                        # Reduce memory usage by reading/writing large CSV files chunk-wise
+                        if csv_file.multiple_chunks():
+                            logging.info('Large CSV file (size: {:d} Byte).'.format(csv_file.size))
+                        else:
+                            logger.debug('CSV file size: {:d} Byte.'.format(csv_file.size))
+                        for chunk in csv_file.chunks():
+                            fout.write(chunk)
+
             return render(request, 'cell2.html', { 'formset': formset, 'row':row })
 
         else:

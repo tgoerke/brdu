@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import logging.config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -142,3 +143,53 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 #USE_X_FORWARDED_HOST = True
 #FORCE_SCRIPT_NAME = "/cellcycle"
+
+# Logging configuration
+# https://docs.djangoproject.com/en/2.2/topics/logging/#examples
+
+# Disable Django's logging setup
+#LOGGING_CONFIG = None
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'default': {
+            'format': '%(asctime)s.%(msecs)03d;%(levelname)s;%(name)s;%(module)s.%(funcName)s;%(message)s',
+            'datefmt': '%Y-%m-%dT%H:%M:%S',
+        },
+    },
+    # Handler for logging to console
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'default',
+        },
+    },
+    'loggers': {
+         # App logger
+        'fit': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            #'propagate': True,
+        },
+        # Django framework code logger
+        #'django': {
+        #    'handlers': ['console'],
+        #    'level': 'ERROR',
+            #'propagate': True,
+        #},
+        # Catchall Root logger
+        #'': {
+        #    'handlers': ['console'],
+        #    'level': os.getenv('DJANGO_LOG_LEVEL', 'ERROR'),
+        #},
+        # Prevent noisy modules from logging
+        #'noisy_module': {
+        #    'level': 'ERROR',
+        #    'handlers': ['console'],
+        #    'propagate': False,
+        #},
+    },
+}
+logging.config.dictConfig(LOGGING)
