@@ -70,9 +70,9 @@ def form(request,row=10):
                     results = calc(ncells,times,datas)
                     return render(request, 'cell2.html', { 'formset': formset, 'fit': results,'row':row })
             if run_add:
-                return HttpResponseRedirect(reverse('fit:form', args=[row+10]))
+                return redirect('fit:form', row=row+10)
             if run_update:
-                return HttpResponseRedirect(reverse('fit:form', args=[len(ncells)]))
+                return redirect('fit:form', row=len(ncells))
 
             # Handle CSV file
             if 'upload_csv' in request.POST:
@@ -88,6 +88,13 @@ def form(request,row=10):
                             logger.debug('CSV file size: {:d} Byte.'.format(csv_file.size))
                         for chunk in csv_file.chunks():
                             fout.write(chunk)
+
+                    # Parse CSV file and overwrite formset data
+                    df = pd.read_csv(csv_file.name, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
+                    init_data = df.to_dict('records')
+                    formset = InputFormSet(initial=init_data)
+                    row = len(init_data)
+                    InputFormSet.min_num  = row # Clear empty lines
 
             return render(request, 'cell2.html', { 'formset': formset, 'row':row })
 
