@@ -155,7 +155,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'default': {
-            'format': '%(asctime)s.%(msecs)03d;%(levelname)s;%(name)s;%(module)s.%(funcName)s;%(message)s',
+            'format': '%(asctime)s.%(msecs)03d;%(levelname)s;%(name)s.%(funcName)s;%(message)s',
             'datefmt': '%Y-%m-%dT%H:%M:%S',
         },
     },

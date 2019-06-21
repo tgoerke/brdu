@@ -16,6 +16,7 @@ import json
 
 # CSV upload
 import pandas as pd
+from django.conf import settings
 
 # Debugging and logging
 from IPython import embed
@@ -80,7 +81,8 @@ def form(request,row=10):
                     csv_file = request.FILES['csv_file']
 
                     # Write file to disk
-                    with open(csv_file.name, 'wb') as fout:
+                    file_path = '{:s}/{:s}'.format(settings.MEDIA_ROOT, csv_file.name)
+                    with open(file_path, 'wb') as fout:
                         # Reduce memory usage by reading/writing large CSV files chunk-wise
                         if csv_file.multiple_chunks():
                             logging.info('Large CSV file (size: {:d} Byte).'.format(csv_file.size))
@@ -90,13 +92,13 @@ def form(request,row=10):
                             fout.write(chunk)
 
                     # Parse CSV file and overwrite formset data
-                    df = pd.read_csv(csv_file.name, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
+                    df = pd.read_csv(file_path, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
                     init_data = df.to_dict('records')
                     formset = InputFormSet(initial=init_data)
                     row = len(init_data)
                     InputFormSet.min_num  = row # Clear empty lines
 
-            return render(request, 'cell2.html', { 'formset': formset, 'row':row })
+            return render(request, 'cell2.html', {'formset': formset, 'row':row})
 
         else:
             print(formset)
