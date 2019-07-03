@@ -80,8 +80,8 @@ def form(request,row=10):
             if 'upload_csv' in request.POST:
                 if 'csv_file' in request.FILES:
                     # Write file to disk
-                    csv_file = CsvFile(upload=request.FILES['csv_file'])
-                    csv_file.save()
+                    upload = CsvFile(file=request.FILES['csv_file'], user_filename=request.FILES['csv_file'].name)
+                    upload.save()
 
                     """
                     # Write file to disk
@@ -97,15 +97,15 @@ def form(request,row=10):
                     """
 
                     # Parse CSV file and overwrite formset data
-                    df = pd.read_csv(csv_file.upload, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
+                    df = pd.read_csv(upload.file, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
                     init_data = df.to_dict('records')
                     formset = InputFormSet(initial=init_data)
                     row = len(init_data)
                     InputFormSet.min_num  = row # Clear empty lines
 
                     # Delete file
-                    csv_file.upload.delete() # delete CSV file
-                    csv_file.delete() # delete database entry
+                    upload.file.delete() # delete CSV file
+                    upload.delete() # delete database entry
 
             return render(request, 'cell2.html', {'formset': formset, 'row':row})
 

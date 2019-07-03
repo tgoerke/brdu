@@ -2,7 +2,9 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django import forms
 
+# CSV file handling
 from .utils import csv_file_path
+from django.core.validators import MaxLengthValidator
 
 # Debugging
 from IPython import embed
@@ -31,5 +33,5 @@ class Data(models.Model):
 
 class CsvFile(models.Model):
     date_uploaded = models.DateTimeField(auto_now_add=True)
-    #user_filename = filename
-    upload = models.FileField(upload_to=csv_file_path) # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField.upload_to
+    user_filename = models.CharField(default='', max_length=255)
+    file = models.FileField(upload_to=csv_file_path) # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField.upload_to
