@@ -104,7 +104,8 @@ def form(request,row=10):
                     InputFormSet.min_num  = row # Clear empty lines
 
                     # Delete file
-                    csv_file.upload.delete()
+                    csv_file.upload.delete() # delete CSV file
+                    csv_file.delete() # delete database entry
 
             return render(request, 'cell2.html', {'formset': formset, 'row':row})
 
