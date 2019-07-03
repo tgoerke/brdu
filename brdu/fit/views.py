@@ -121,3 +121,6 @@ def form(request,row=10):
             formset = InputFormSet()
 
     return  render(request, 'cell2.html', {'formset': formset,'row':row})
+
+def upload():
+    pass
