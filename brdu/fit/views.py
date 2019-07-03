@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.views import generic
 
-from fit.models import Data
+from .models import Data
 from .calc import calc
 
 from django.http import HttpResponseRedirect
@@ -15,6 +15,7 @@ from django.shortcuts import redirect
 import json
 
 # CSV upload
+from .models import CsvFile
 import pandas as pd
 from django.conf import settings
 
@@ -78,8 +79,11 @@ def form(request,row=10):
             # Handle CSV file
             if 'upload_csv' in request.POST:
                 if 'csv_file' in request.FILES:
-                    csv_file = request.FILES['csv_file']
+                    # Write file to disk
+                    csv_file = CsvFile(upload=request.FILES['csv_file'])
+                    csv_file.save()
 
+                    """
                     # Write file to disk
                     file_path = '{:s}/{:s}'.format(settings.MEDIA_ROOT, csv_file.name)
                     with open(file_path, 'wb') as fout:
@@ -90,13 +94,17 @@ def form(request,row=10):
                             logger.debug('CSV file size: {:d} Byte.'.format(csv_file.size))
                         for chunk in csv_file.chunks():
                             fout.write(chunk)
+                    """
 
                     # Parse CSV file and overwrite formset data
-                    df = pd.read_csv(file_path, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
+                    df = pd.read_csv(csv_file.upload, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
                     init_data = df.to_dict('records')
                     formset = InputFormSet(initial=init_data)
                     row = len(init_data)
                     InputFormSet.min_num  = row # Clear empty lines
+
+                    # Delete file
+                    csv_file.upload.delete()
 
             return render(request, 'cell2.html', {'formset': formset, 'row':row})
 
