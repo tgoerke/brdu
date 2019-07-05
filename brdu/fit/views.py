@@ -15,7 +15,8 @@ from django.shortcuts import redirect
 import json
 
 # CSV upload
-from .models import CsvFile
+from .forms import UploadForm
+from .models import Upload
 import pandas as pd
 from django.conf import settings
 
@@ -28,6 +29,7 @@ logger = logging.getLogger(__name__)
 
 def form(request,row=10):
     InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
+    upload_form = UploadForm()
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         #form = InputForm(request.POST)
@@ -70,13 +72,13 @@ def form(request,row=10):
             if run_calc:
                 if len(ncells) == len(datas) and len(datas) == len(times) and len(times)>0:
                     results = calc(ncells,times,datas)
-                    return render(request, 'cell2.html', { 'formset': formset, 'fit': results,'row':row })
+                    return render(request, 'cell2.html', {'formset': formset, 'fit': results,'row': row, 'upload_form': upload_form})
             if run_add:
                 return redirect('fit:form', row=row+10)
             if run_update:
                 return redirect('fit:form', row=len(ncells))
 
-            return render(request, 'cell2.html', {'formset': formset, 'row':row})
+            return render(request, 'cell2.html', {'formset': formset, 'row': row, 'upload_form': upload_form})
 
         else:
             print(formset)
@@ -89,15 +91,25 @@ def form(request,row=10):
         else:
             formset = InputFormSet()
 
-    return  render(request, 'cell2.html', {'formset': formset,'row':row})
+    return  render(request, 'cell2.html', {'formset': formset,'row': row, 'upload_form': upload_form})
 
 def upload(request, row=10):
-    if request.method == 'POST':
-        # Handle CSV file
-        if 'upload_csv' in request.POST and 'csv_file' in request.FILES:
-            # Write file to disk
-            upload = CsvFile(file=request.FILES['csv_file'], user_filename=request.FILES['csv_file'].name)
-            upload.save()
+    if request.method != 'POST':
+        # No data submitted; create a blank upload_form.
+        upload_form = UploadForm()
+
+        # No data submitted; create blank formset or formset with old data.
+        InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
+        if "data" in request.session:
+            init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
+            formset = InputFormSet(initial=init_data) 
+        else:
+            formset = InputFormSet()
+    else:
+        # POST data submitted; process data.
+        upload_form = UploadForm(request.POST, request.FILES)
+        if upload_form.is_valid():
+            upload = upload_form.save()
 
             """
             # Write file to disk
@@ -105,7 +117,7 @@ def upload(request, row=10):
             with open(file_path, 'wb') as fout:
                 # Reduce memory usage by reading/writing large CSV files chunk-wise
                 if csv_file.multiple_chunks():
-                    logging.info('Large CSV file (size: {:d} Byte).'.format(csv_file.size))
+                    logger.info('Large CSV file (size: {:d} Byte).'.format(csv_file.size))
                 else:
                     logger.debug('CSV file size: {:d} Byte.'.format(csv_file.size))
                 for chunk in csv_file.chunks():
@@ -123,15 +135,6 @@ def upload(request, row=10):
             # Delete file
             upload.file.delete() # delete CSV file
             upload.delete() # delete database entry
-       
-    if request.method != 'POST' or 'upload_csv' not in request.POST or 'csv_file' not in request.FILES:
-        # No data submitted
-        InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
-        if "data" in request.session:
-            init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
-            formset = InputFormSet(initial=init_data) 
-        else:
-            formset = InputFormSet()
 
-    context = {'row': row, 'formset': formset}
+    context = {'row': row, 'formset': formset, 'upload_form': upload_form}
     return render(request, 'cell2.html', context)

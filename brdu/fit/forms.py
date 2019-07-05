@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Data, CsvFile
+from .models import Data, Upload
 
 
 class InputForm(forms.ModelForm):
@@ -16,5 +16,5 @@ class InputForm(forms.ModelForm):
 
 class UploadForm(forms.ModelForm):
     class Meta:
-        model = CsvFile
-        fields = ['file', 'user_filename']
+        model = Upload
+        fields = ['file']

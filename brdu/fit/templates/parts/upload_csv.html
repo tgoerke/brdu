@@ -22,6 +22,7 @@
 
 <form action="{% url 'fit:upload' row %}" method="POST" enctype="multipart/form-data">
 	{% csrf_token %}
+  	{{ upload_form.as_p }}
 	<!--
 	provide required formset data for the ManagementForm
 	# https://docs.djangoproject.com/en/2.2/topics/forms/formsets/#understanding-the-managementform
@@ -29,7 +30,7 @@
 	{{ formset.management_form }}
 	<!--<div class="form-group">
 		<div class="col-md-8">-->
-			<input type="file" name="csv_file" id="exampleInputFile" class="form-control-file" />
+			<div style="color:red">{{upload_form.errors}}</div>
 		<!--</div>
 	</div>-->
 	<p class="help-block">
