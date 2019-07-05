@@ -76,37 +76,6 @@ def form(request,row=10):
             if run_update:
                 return redirect('fit:form', row=len(ncells))
 
-            # Handle CSV file
-            if 'upload_csv' in request.POST:
-                if 'csv_file' in request.FILES:
-                    # Write file to disk
-                    upload = CsvFile(file=request.FILES['csv_file'], user_filename=request.FILES['csv_file'].name)
-                    upload.save()
-
-                    """
-                    # Write file to disk
-                    file_path = '{:s}/{:s}'.format(settings.MEDIA_ROOT, csv_file.name)
-                    with open(file_path, 'wb') as fout:
-                        # Reduce memory usage by reading/writing large CSV files chunk-wise
-                        if csv_file.multiple_chunks():
-                            logging.info('Large CSV file (size: {:d} Byte).'.format(csv_file.size))
-                        else:
-                            logger.debug('CSV file size: {:d} Byte.'.format(csv_file.size))
-                        for chunk in csv_file.chunks():
-                            fout.write(chunk)
-                    """
-
-                    # Parse CSV file and overwrite formset data
-                    df = pd.read_csv(upload.file, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
-                    init_data = df.to_dict('records')
-                    formset = InputFormSet(initial=init_data)
-                    row = len(init_data)
-                    InputFormSet.min_num  = row # Clear empty lines
-
-                    # Delete file
-                    upload.file.delete() # delete CSV file
-                    upload.delete() # delete database entry
-
             return render(request, 'cell2.html', {'formset': formset, 'row':row})
 
         else:
@@ -122,5 +91,47 @@ def form(request,row=10):
 
     return  render(request, 'cell2.html', {'formset': formset,'row':row})
 
-def upload():
-    pass
+def upload(request, row=10):
+    if request.method == 'POST':
+        # Handle CSV file
+        if 'upload_csv' in request.POST and 'csv_file' in request.FILES:
+            # Write file to disk
+            upload = CsvFile(file=request.FILES['csv_file'], user_filename=request.FILES['csv_file'].name)
+            upload.save()
+
+            """
+            # Write file to disk
+            file_path = '{:s}/{:s}'.format(settings.MEDIA_ROOT, csv_file.name)
+            with open(file_path, 'wb') as fout:
+                # Reduce memory usage by reading/writing large CSV files chunk-wise
+                if csv_file.multiple_chunks():
+                    logging.info('Large CSV file (size: {:d} Byte).'.format(csv_file.size))
+                else:
+                    logger.debug('CSV file size: {:d} Byte.'.format(csv_file.size))
+                for chunk in csv_file.chunks():
+                    fout.write(chunk)
+            """
+
+            # Parse CSV file and overwrite formset data
+            df = pd.read_csv(upload.file, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
+            init_data = df.to_dict('records')
+            InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
+            formset = InputFormSet(initial=init_data)
+            row = len(init_data)
+            InputFormSet.min_num  = row # Clear empty lines
+
+            # Delete file
+            upload.file.delete() # delete CSV file
+            upload.delete() # delete database entry
+       
+    if request.method != 'POST' or 'upload_csv' not in request.POST or 'csv_file' not in request.FILES:
+        # No data submitted
+        InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
+        if "data" in request.session:
+            init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
+            formset = InputFormSet(initial=init_data) 
+        else:
+            formset = InputFormSet()
+
+    context = {'row': row, 'formset': formset}
+    return render(request, 'cell2.html', context)
