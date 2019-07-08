@@ -25,7 +25,7 @@ SECRET_KEY = 'nd6bhj6v)wm1pvh-0mregnkfbx4#*6yu^!+8#^nnfcsu7@&0d*'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '172.22.1.177']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '172.22.1.177', 'imc.zih.tu-dresden.de']
 
 
 # Application definition
