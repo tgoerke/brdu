@@ -1,6 +1,15 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django import forms
+
+# CSV file handling
+from .utils import unique_file_path
+from .validators import ValidateFileType
+from django.core.validators import MaxLengthValidator
+
+# Debugging
+from IPython import embed
+
 class Experiments(models.Model):
     # experiment title
     title = models.CharField(max_length=255, null=False)
@@ -22,3 +31,8 @@ class Data(models.Model):
     number_of_all_cells = models.IntegerField(validators=[MinValueValidator(0)])
     class Meta:
         ordering = ('measurement_time',)
+
+class Upload(models.Model):
+    date_uploaded = models.DateTimeField(auto_now_add=True)
+    #user_filename = models.CharField(default='', max_length=255)
+    file = models.FileField(upload_to=unique_file_path, validators=[ValidateFileType]) # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField.upload_to

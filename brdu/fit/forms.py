@@ -1,9 +1,9 @@
 from django import forms
-from django.forms import ModelForm
-from fit.models import Data
+
+from .models import Data, Upload
 
 
-class InputForm(ModelForm):
+class InputForm(forms.ModelForm):
     class Meta:
         model = Data
         fields = '__all__'
@@ -13,3 +13,8 @@ class InputForm(ModelForm):
     def __init__(self, *arg, **kwarg):
         super(InputForm, self).__init__(*arg, **kwarg)
         self.empty_permitted = True
+
+class UploadForm(forms.ModelForm):
+    class Meta:
+        model = Upload
+        fields = ['file']

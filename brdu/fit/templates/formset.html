@@ -1,4 +1,4 @@
-<form method="post" action="row={{row}}">
+<form method="post" action="{% url 'fit:form' row %}">
     {% csrf_token %}
     {{ formset.management_form }}
     <table>

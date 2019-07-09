@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.views import generic
 
-from fit.models import Data
+from .models import Data
 from .calc import calc
 
 from django.http import HttpResponseRedirect
@@ -14,17 +14,31 @@ from django.forms import formset_factory
 from django.shortcuts import redirect
 import json
 
+# CSV upload
+from .forms import UploadForm
+from .models import Upload
+from .validators import ValidateFileType
+import pandas as pd
+from django.conf import settings
 
+# Debugging and logging
+from IPython import embed
+import logging
 
-def form(request,row=20):
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
+
+def form(request,row=10):
     InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
+    upload_form = UploadForm()
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         #form = InputForm(request.POST)
         formset = InputFormSet(request.POST, request.FILES)
+        #formset = InputFormSet(request.FILES)
         if 'clear' in request.POST:
-            request.session["data"] =[]
-            return HttpResponseRedirect(reverse('fit:form', args=[10]))
+            request.session["data"] = []
+            return redirect('fit:index')
         if 'add' in request.POST:
             run_add = True
         else:
@@ -33,11 +47,11 @@ def form(request,row=20):
             run_calc = True
         else:
             run_calc = False
-
         if 'update' in request.POST:
             run_update = True
         else:
             run_update = False
+
         # check whether it's valid:
         if formset.is_valid():
             data_form = formset.cleaned_data
@@ -59,12 +73,13 @@ def form(request,row=20):
             if run_calc:
                 if len(ncells) == len(datas) and len(datas) == len(times) and len(times)>0:
                     results = calc(ncells,times,datas)
-                    return render(request, 'cell2.html', { 'formset': formset, 'fit': results,'row':row })
+                    return render(request, 'cell2.html', {'formset': formset, 'fit': results,'row': row, 'upload_form': upload_form})
             if run_add:
-                return HttpResponseRedirect(reverse('fit:form', args=[row+10]))
+                return redirect('fit:form', row=row+10)
             if run_update:
-                return HttpResponseRedirect(reverse('fit:form', args=[len(ncells)]))
-            return render(request, 'cell2.html', { 'formset': formset, 'row':row })
+                return redirect('fit:form', row=len(ncells))
+
+            return render(request, 'cell2.html', {'formset': formset, 'row': row, 'upload_form': upload_form})
 
         else:
             print(formset)
@@ -77,5 +92,45 @@ def form(request,row=20):
         else:
             formset = InputFormSet()
 
-    return  render(request, 'cell2.html', {'formset': formset,'row':row})
+    return  render(request, 'cell2.html', {'formset': formset,'row': row, 'upload_form': upload_form})
 
+def upload(request, row=10):
+    if request.method != 'POST':
+        # No data submitted; create a blank upload_form.
+        upload_form = UploadForm()
+
+        # No data submitted; create blank formset or formset with old data.
+        InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
+        if "data" in request.session:
+            init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
+            formset = InputFormSet(initial=init_data) 
+        else:
+            formset = InputFormSet()
+    else:
+        # POST data submitted; process data.
+        upload_form = UploadForm(request.POST, request.FILES)
+        if upload_form.is_valid():
+            upload = upload_form.save()
+
+            # Parse CSV file and overwrite formset data
+            df = pd.read_csv(upload.file, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
+            init_data = df.to_dict('records')
+            InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
+            formset = InputFormSet(initial=init_data)
+            row = len(init_data)
+            InputFormSet.min_num = row # Clear empty lines
+
+            # Delete file
+            upload.file.delete() # delete CSV file
+            upload.delete() # delete database entry
+        else:
+            # Invalid form, use old data.
+            InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
+            if "data" in request.session:
+                init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
+                formset = InputFormSet(initial=init_data) 
+            else:
+                formset = InputFormSet()
+
+    context = {'row': row, 'formset': formset, 'upload_form': upload_form}
+    return render(request, 'cell2.html', context)
