@@ -17,6 +17,7 @@ import json
 # CSV upload
 from .forms import UploadForm
 from .models import Upload
+from .validators import ValidateFileType
 import pandas as pd
 from django.conf import settings
 
@@ -111,6 +112,23 @@ def upload(request, row=10):
         if upload_form.is_valid():
             upload = upload_form.save()
 
+            # Validate MIME type
+            file_type_error = ValidateFileType(upload)
+            if file_type_error != None:
+                # Delete file
+                upload.file.delete() # delete CSV file
+                upload.delete() # delete database entry
+
+                # Prepare context
+                InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
+                if "data" in request.session:
+                    init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
+                    formset = InputFormSet(initial=init_data) 
+                else:
+                    formset = InputFormSet()
+                context = {'row': row, 'formset': formset, 'upload_form': upload_form, 'file_type_error': file_type_error}
+                return render(request, 'cell2.html', context)
+
             """
             # Write file to disk
             file_path = '{:s}/{:s}'.format(settings.MEDIA_ROOT, csv_file.name)
@@ -130,7 +148,7 @@ def upload(request, row=10):
             InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
             formset = InputFormSet(initial=init_data)
             row = len(init_data)
-            InputFormSet.min_num  = row # Clear empty lines
+            InputFormSet.min_num = row # Clear empty lines
 
             # Delete file
             upload.file.delete() # delete CSV file
