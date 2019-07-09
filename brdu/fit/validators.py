@@ -21,7 +21,7 @@ def ValidateFileType(upload, allowed_types=CSV_TYPES):
     http://blog.hayleyanderson.us/2015/07/18/validating-file-types-in-django/
     """
     # Get MIME type of file using python-magic
-    tmp_path = unique_file_path(instance=None, filename=upload.file.name, subdir='tmp/')
+    tmp_path = unique_file_path(instance=None, filename=upload.file.name)
     default_storage.save(tmp_path, ContentFile(upload.file.read()))
     file_type = magic.from_file(tmp_path, mime=True)
     default_storage.delete(tmp_path)
