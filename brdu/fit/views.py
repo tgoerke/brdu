@@ -112,36 +112,6 @@ def upload(request, row=10):
         if upload_form.is_valid():
             upload = upload_form.save()
 
-            # Validate MIME type
-            file_type_error = ValidateFileType(upload)
-            if file_type_error != None:
-                # Delete file
-                upload.file.delete() # delete CSV file
-                upload.delete() # delete database entry
-
-                # Prepare context
-                InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
-                if "data" in request.session:
-                    init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
-                    formset = InputFormSet(initial=init_data) 
-                else:
-                    formset = InputFormSet()
-                context = {'row': row, 'formset': formset, 'upload_form': upload_form, 'file_type_error': file_type_error}
-                return render(request, 'cell2.html', context)
-
-            """
-            # Write file to disk
-            file_path = '{:s}/{:s}'.format(settings.MEDIA_ROOT, csv_file.name)
-            with open(file_path, 'wb') as fout:
-                # Reduce memory usage by reading/writing large CSV files chunk-wise
-                if csv_file.multiple_chunks():
-                    logger.info('Large CSV file (size: {:d} Byte).'.format(csv_file.size))
-                else:
-                    logger.debug('CSV file size: {:d} Byte.'.format(csv_file.size))
-                for chunk in csv_file.chunks():
-                    fout.write(chunk)
-            """
-
             # Parse CSV file and overwrite formset data
             df = pd.read_csv(upload.file, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
             init_data = df.to_dict('records')
@@ -153,6 +123,14 @@ def upload(request, row=10):
             # Delete file
             upload.file.delete() # delete CSV file
             upload.delete() # delete database entry
+        else:
+            # Invalid form, use old data.
+            InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
+            if "data" in request.session:
+                init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
+                formset = InputFormSet(initial=init_data) 
+            else:
+                formset = InputFormSet()
 
     context = {'row': row, 'formset': formset, 'upload_form': upload_form}
     return render(request, 'cell2.html', context)

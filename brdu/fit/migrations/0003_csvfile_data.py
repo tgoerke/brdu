@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('date_uploaded', models.DateTimeField(auto_now_add=True)),
-                ('file', models.FileField(upload_to=fit.utils.csv_file_path)),
+                ('file', models.FileField(upload_to=fit.utils.unique_file_path)),
             ],
         ),
         migrations.CreateModel(

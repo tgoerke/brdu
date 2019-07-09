@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('date_uploaded', models.DateTimeField(auto_now_add=True)),
                 ('user_filename', models.CharField(default='', max_length=255)),
-                ('file', models.FileField(upload_to=fit.utils.csv_file_path)),
+                ('file', models.FileField(upload_to=fit.utils.unique_file_path)),
             ],
         ),
         migrations.DeleteModel(
