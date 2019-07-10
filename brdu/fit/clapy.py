@@ -1,45 +1,44 @@
 import numpy as np
-import scipy as sp
-import scipy.stats
+from scipy.stats import lognorm,binom
+from scipy.special import erf,erfc
+from scipy import integrate
 
 import matplotlib.pyplot as plt
-from matplotlib.transforms import Bbox, TransformedBbox, blended_transform_factory
-from mpl_toolkits.axes_grid1.inset_locator import BboxConnector
-import matplotlib.lines as pltlines
-import matplotlib.transforms as plttransformsimport 
-import json
 from iminuit import Minuit
-import warnings
+import io
 
 
-def calc_statistic(dataframe,parameter):
-    tmp = dataframe.copy()
-    try:
-        tmp.rename({'GF_error' : 'GFf_error'}, axis="columns",inplace=True)
-    except:
-        pass
-    for i in ['Tc','r','ss','sc','GFf']:
-        try:
-            tmp[i+'_2std'] = tmp[i+'_error'].mul(2)
-            tmp[i+'_mse'] = tmp[i].sub(1).pow(2)
-            tmp[i+'_d'] = tmp[i].sub(parameter[i])
-            tmp[i+'_p'] = tmp[i+'_d'].abs() < tmp[i+'_2std']
-            tmp[i+'_p2'] = np.logical_and( tmp[i+'_hpd46_l'] < parameter[i] ,parameter[i] < tmp[i+'_hpd46_u']    )
-        except:
-            print(i+' not found')
-    sdata = tmp.mean(level=['model','sPopulation','sSample','M','GF'])
-    for i in ['Tc','r','ss','sc','GFf']:
-        try:
-            sdata[i+'_mse'] = sdata[i+'_mse'].pow(0.5)
-        except:
-            print(i+' not found')
-    return tmp,sdata
+def log_params( mu, sigma):
+    """ A transformation of paramteres such that mu and sigma are the
+        mean and variance of the log-normal distribution and not of
+        the underlying normal distribution.
+    """
+    s2 = np.log(1.0 + sigma**2/mu**2)
+    m = np.log(mu) - 0.5 * s2
+    s = np.sqrt(s2)
+    return m, s
 
-def ecdf(x):
-    ''' calc emerical cdf '''
-    xs = np.sort(x)
-    ys = np.arange(1, len(xs)+1)/float(len(xs))
-    return xs, ys
+def pdf_LN(X, mu, sigma):
+    ''' lognormal pdf with actual miu and sigma
+    '''
+    mu_tmp, sigma_tmp = log_params(mu, sigma)
+    return lognorm.pdf(X, s=sigma_tmp, scale = np.exp(mu_tmp))
+
+def logn(sigma_cell,Tc,r,t):
+    '''  def logn(t,sigma_cell,Tc,r):
+         analytic solution for cell only noise
+         sigma_cell : $\hat{\sigma}_c$
+         r          : $f_S$
+         t          : time
+    '''
+    s2 = np.log(1.0 + sigma_cell**2/Tc**2)
+    mean = np.log(Tc) - 0.5 * s2
+    sigma = np.sqrt(s2)
+    la = np.log(t/(1-r))
+    idf = 0.5 * ( 1 + erf(  (mean - la) / (np.sqrt(2) * sigma) )  )
+    int2 = 0.5 * np.exp( -mean + 0.5 * sigma * sigma ) * erfc(  ( -mean + sigma*sigma + la ) / (np.sqrt(2)*sigma) )
+    return 1-1*idf+r*idf+t*int2
+
 
 
 class asym_lh:
@@ -69,34 +68,6 @@ class asym_lh:
         #return np.sum(-np.log( self.pmf_f(Tc,r,GF,sigma_cell,sigma_sample) ) )
 
 
-    def log_params(self, mu, sigma):
-        """ A transformation of paramteres such that mu and sigma are the
-            mean and variance of the log-normal distribution and not of
-            the underlying normal distribution.
-        """
-        s2 = np.log(1.0 + sigma**2/mu**2)
-        m = np.log(mu) - 0.5 * s2
-        s = np.sqrt(s2)
-        return m, s
-
-    def pdf_LN(self, X, mu, sigma):
-        ''' lognormal pdf with actual miu and sigma
-        '''
-        mu_tmp, sigma_tmp = self.log_params(mu, sigma)
-        return sp.stats.lognorm.pdf(X, s=sigma_tmp, scale = np.exp(mu_tmp))
-
-    def logn(self, sigma_cell,Tc,r,n):
-        '''  def logn(t,sigma_cell,Tc,r):
-             analytic solution for cell only noise
-        '''
-        mean,sigma = self.log_params(Tc,sigma_cell)
-        la = np.log(self.times[n]/(1-r))
-        idf = 0.5 * ( 1 + sp.special.erf(  (mean - la) / (np.sqrt(2) * sigma) )  )
-        int2 = 0.5 * np.exp( -mean + 0.5 * sigma * sigma ) * sp.special.erfc(  ( -mean + sigma*sigma + la ) / (np.sqrt(2)*sigma) )
-        return 1-1*idf+r*idf+self.times[n]*int2
-
-
-
     def pmf_f(self, Tc,r, GF, sigma_cell,sigma_sample):
         """ pmf for the number of labelled cells
             to test: using epsabs=0.1 and epsrel=0.1 in quad might significantly
@@ -108,51 +79,31 @@ class asym_lh:
         self.sigma_cell = sigma_cell
         self.sigma_sample = sigma_sample
 
-        #P =[sp.integrate.quadrature(self.f, 0.0001, Tc+(sigma_sample*10),args=([i]),tol=1.48e-08, rtol=1.48e-08)[0] for i in range(self.datalen)]
-        #P = [sp.integrate.fixed_quad(self.f, 0.0001, Tc+(sigma_sample*10),n=100,args=([i]))[0] for i in range(self.datalen)]
-        P = [sp.integrate.fixed_quad(self.f, max(0.0001,Tc-(sigma_sample*5)), Tc+(sigma_sample*10),n=200,args=([i]))[0] for i in range(self.datalen)]
+        #P =[integrate.quadrature(self.f, 0.0001, Tc+(sigma_sample*10),args=([i]),tol=1.48e-08, rtol=1.48e-08)[0] for i in range(self.datalen)]
+        #P = [integrate.fixed_quad(self.f, 0.0001, Tc+(sigma_sample*10),n=100,args=([i]))[0] for i in range(self.datalen)]
+        P = [integrate.fixed_quad(self.f, max(0.0001,Tc-(sigma_sample*5)), Tc+(sigma_sample*10),n=200,args=([i]))[0] for i in range(self.datalen)]
         return np.array(P)
 
     def f(self, TC_,n):
-        return sp.stats.binom.pmf(self.data[n], self.ncell[n], self.GF*self.logn(self.sigma_cell,TC_,self.r,n) ) * self.pdf_LN(TC_, self.Tc, self.sigma_sample)
-    
-    
+        return binom.pmf(self.data[n], self.ncell[n], self.GF*logn(self.sigma_cell,TC_,self.r,self.times[n]) ) * pdf_LN(TC_, self.Tc, self.sigma_sample)
+
 class dist:
     ''' distribution for the asymetric labelling assay   '''
 
     def __init__(self):
         pass
 
-    def log_params(self, mu, sigma):
-        """ A transformation of paramteres such that mu and sigma are the 
-            mean and variance of the log-normal distribution and not of
-            the underlying normal distribution.
-        """
-        s2 = np.log(1.0 + sigma**2/mu**2)
-        m = np.log(mu) - 0.5 * s2
-        s = np.sqrt(s2)
-        return m, s
-
-    def pdf_LN(self, X, mu, sigma):
-        ''' lognormal pdf with actual miu and sigma
-        '''
-        mu_tmp, sigma_tmp = self.log_params(mu, sigma)
-        return sp.stats.lognorm.pdf(X, s=sigma_tmp, scale = np.exp(mu_tmp))
-
-    def logn(self, sigma_cell,Tc,r):
-        '''  def logn(t,sigma_cell,Tc,r):
-             analytic solution for cell only noise
-        '''
-        mean,sigma = self.log_params(Tc,sigma_cell)
-        la = np.log(self.t/(1-r))
-        idf = 0.5 * ( 1 + sp.special.erf(  (mean - la) / (np.sqrt(2) * sigma) )  )
-        int2 = 0.5 * np.exp( -mean + 0.5 * sigma * sigma ) * sp.special.erfc(  ( -mean + sigma*sigma + la ) / (np.sqrt(2)*sigma) )
-        return 1-1*idf+r*idf+self.t*int2
-
-
 
     def pmf_f(self,ncell,Tc,r, GF, sigma_cell,sigma_sample, t, x):
         """ pmf for the number of labelled cells
+              ncell      : number of cells counted
+              Tc         : cell cycle length $\tau$
+              r          : $f_S$
+              GF         : growth fraction $g$
+              sigma_cell : $\hat{\sigma}_c$
+              t          : time
+              x          : number of labelled cells
+
         """
         self.ncell = ncell
         self.Tc = Tc
@@ -161,13 +112,13 @@ class dist:
         self.sigma_cell = sigma_cell
         self.sigma_sample = sigma_sample
         self.t = t
-        
+
         #P =  sp.integrate.quadrature(self.f, 0.01, 11,args=([x]))[0] 
-        P = sp.integrate.fixed_quad(self.f, max(0.0001,Tc-(sigma_sample*5)), Tc+(sigma_sample*10),n=200,args=([x]))[0]
+        P = integrate.fixed_quad(self.f, max(0.0001,Tc-(sigma_sample*5)), Tc+(sigma_sample*10),n=200,args=([x]))[0]
         return P
 
     def f(self, TC_,x):
-        return sp.stats.binom.pmf(x, self.ncell, self.GF*self.logn(self.sigma_cell,TC_,self.r) ) * self.pdf_LN(TC_, self.Tc, self.sigma_sample)
+        return inom.pmf(x, self.ncell, self.GF*logn(self.sigma_cell,TC_,self.r,self.t) ) * pdf_LN(TC_, self.Tc, self.sigma_sample)
 
     def pmf_mean(self,ncell,Tc,r, GF, sigma_cell,sigma_sample, t):
         """ mean number of labelled cells
@@ -179,16 +130,20 @@ class dist:
         self.sigma_cell = sigma_cell
         self.sigma_sample = sigma_sample
         self.t = t
-        
+
         #P =  sp.integrate.quadrature(self.fm, max(0.0001,Tc-(sigma_sample*5)), Tc+(sigma_sample*10))[0] 
-        P = sp.integrate.fixed_quad(self.fm, max(0.0001,Tc-(sigma_sample*5)), Tc+(sigma_sample*10),n=200)[0]
+        P = integrate.fixed_quad(self.fm, max(0.0001,Tc-(sigma_sample*5)), Tc+(sigma_sample*10),n=200)[0]
         return ncell*P
 
 
     def fm(self, TC_):
-        return  self.GF*self.logn(self.sigma_cell,TC_,self.r) * self.pdf_LN(TC_, self.Tc, self.sigma_sample)
-    
+        return  self.GF*logn(self.sigma_cell,TC_,self.r,self.t) * pdf_LN(TC_, self.Tc, self.sigma_sample)
 
+def calc_sigma_true(sigma,fg1,fg2m):
+    a = np.sqrt(-(-1 + 3*fg1 - 3*fg1*fg1 + 3*fg2m - 6*fg1*fg2m - 3*fg2m*fg2m + 3*fg1*fg2m*fg2m))
+    b = np.sqrt(-(-1 + 3*fg1 - 3*fg1*fg1 + 3*fg2m - 6*fg1*fg2m - 3*fg2m*fg2m))
+    return sigma*a/b
+    
 @np.vectorize
 def cla_det_model(t, G1=0.2, S=0.3, G2M=0.5, GF=1, mode=1, **kwargs):
     """ Model for labeling assays in vivo.
@@ -230,7 +185,7 @@ def cla_det_model(t, G1=0.2, S=0.3, G2M=0.5, GF=1, mode=1, **kwargs):
                 return g
 
 
-def web_fit(ncells,times,datas,opath,name):
+def web_fit(times,datas,ncells):
     dat = np.array(datas)
     tim = np.array(times)
     ncell = np.array(ncells)
@@ -270,8 +225,7 @@ def web_fit(ncells,times,datas,opath,name):
     plt.xlabel('time [original units]')
     plt.ylabel('labeling fraction')
 
-    fig.savefig(opath+"/" + name+'.png')
+    image = io.BytesIO()
+    fig.savefig(image,format='png')
     plt.close(fig)
-    return fit
-
-
+    return fit,image.getvalue()
