@@ -6,6 +6,7 @@ from django import forms
 from .utils import unique_file_path
 from .validators import ValidateFileType
 from django.conf import settings
+import os
 
 # Debugging
 from IPython import embed
@@ -44,4 +45,8 @@ class Assay(models.Model):
         - estimated values (not implemented yet)
     """
     date_added = models.DateTimeField(auto_now_add=True)
-    plot = models.ImageField(upload_to=settings.MEDIA_URL)
+    plot = models.ImageField(upload_to=unique_file_path)
+
+    @property
+    def filename(self):
+        return os.path.basename(self.plot.name)
