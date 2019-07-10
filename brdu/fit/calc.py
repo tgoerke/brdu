@@ -11,5 +11,5 @@ import json
 from .clapy import web_fit
 
 
-def calc(ncells=None,times=None,datas=None,opath="fit/static",name="123"):
-    return web_fit(ncells,times,datas,opath,name)
+def calc(ncells=None,times=None,datas=None):
+    return web_fit(ncells,times,datas)

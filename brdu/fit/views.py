@@ -21,6 +21,10 @@ from .validators import ValidateFileType
 import pandas as pd
 from django.conf import settings
 
+# Plot
+from .models import Assay
+from django.core.files.base import ContentFile
+
 # Debugging and logging
 from IPython import embed
 import logging
@@ -72,7 +76,9 @@ def form(request,row=10):
             formset = InputFormSet(initial=init_data)
             if run_calc:
                 if len(ncells) == len(datas) and len(datas) == len(times) and len(times)>0:
-                    results = calc(ncells,times,datas)
+                    results, plot = calc(ncells,times,datas)
+                    assay = Assay(plot=ContentFile(plot))
+                    embed()
                     return render(request, 'cell2.html', {'formset': formset, 'fit': results,'row': row, 'upload_form': upload_form})
             if run_add:
                 return redirect('fit:form', row=row+10)

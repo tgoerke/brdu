@@ -138,7 +138,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # https://blog.vivekshukla.xyz/uploading-file-using-api-django-rest-framework/
 
-MEDIA_URL = '/media/'
+MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 #USE_X_FORWARDED_HOST = True
