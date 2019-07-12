@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_cleanup', # Dhould go after your apps; Automatically deletes old file for FileField and ImageField. It also deletes files on models instance deletion.
 
     # My apps
     'fit',
