@@ -21,6 +21,12 @@ from .validators import ValidateFileType
 import pandas as pd
 from django.conf import settings
 
+# Plot
+from .models import Assay
+from django.core.files.base import ContentFile
+import os
+from django.contrib.sessions.models import Session
+
 # Debugging and logging
 from IPython import embed
 import logging
@@ -72,8 +78,21 @@ def form(request,row=10):
             formset = InputFormSet(initial=init_data)
             if run_calc:
                 if len(ncells) == len(datas) and len(datas) == len(times) and len(times)>0:
-                    results = calc(ncells,times,datas)
-                    return render(request, 'cell2.html', {'formset': formset, 'fit': results,'row': row, 'upload_form': upload_form})
+                    results, plot = calc(ncells,times,datas)
+
+                    # Save plot to media/database
+                    # https://docs.djangoproject.com/en/2.2/ref/files/file/#additional-methods-on-files-attached-to-objects
+                    assay = Assay()
+
+                    # Link temporary stored assay data to current session
+                    session = Session.objects.get(session_key=request.session.session_key)
+                    assay.session = session
+                    
+                    assay.plot.save('dummy.png', ContentFile(plot), save=False) # filename will be randomized anyway
+                    assay.save()
+                    #plot_filename = os.path.basename(assay.plot.name) # only filename, not the whole path
+                    
+                    return render(request, 'cell2.html', {'formset': formset, 'fit': results, 'assay': assay, 'row': row, 'upload_form': upload_form})
             if run_add:
                 return redirect('fit:form', row=row+10)
             if run_update:

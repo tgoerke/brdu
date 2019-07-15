@@ -5,7 +5,11 @@ from django import forms
 # CSV file handling
 from .utils import unique_file_path
 from .validators import ValidateFileType
-from django.core.validators import MaxLengthValidator
+from django.conf import settings
+import os
+
+# Plot handling
+from django.contrib.sessions.models import Session
 
 # Debugging
 from IPython import embed
@@ -36,3 +40,19 @@ class Upload(models.Model):
     date_uploaded = models.DateTimeField(auto_now_add=True)
     #user_filename = models.CharField(default='', max_length=255)
     file = models.FileField(upload_to=unique_file_path, validators=[ValidateFileType]) # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField.upload_to
+
+class Assay(models.Model):
+    """
+    Holds all relevant values of a labeling assay for later reference like:
+        - generated plot
+        - estimated values (not implemented yet)
+    """
+    date_added = models.DateTimeField(auto_now_add=True)
+    plot = models.ImageField(upload_to=unique_file_path)
+    session = models.ForeignKey(Session, default='tfzs3e7d6x13029nvi88p9z7rhwwurcq', on_delete=models.CASCADE) # assay data is bound to a session and will be deleted together on removal of the session
+
+    @property
+    def filename(self):
+        return os.path.basename(self.plot.name)
+
+    # https://stackoverflow.com/questions/5372934/how-do-i-get-django-admin-to-delete-files-when-i-remove-an-object-from-the-datab

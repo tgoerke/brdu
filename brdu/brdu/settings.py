@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_cleanup', # Dhould go after your apps; Automatically deletes old file for FileField and ImageField. It also deletes files on models instance deletion.
 
     # My apps
     'fit',
@@ -67,6 +68,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media', # https://docs.djangoproject.com/en/2.2/ref/settings/#media-root
             ],
         },
     },
@@ -138,7 +140,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # https://blog.vivekshukla.xyz/uploading-file-using-api-django-rest-framework/
 
-MEDIA_URL = '/media/'
+MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 #USE_X_FORWARDED_HOST = True
