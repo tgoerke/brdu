@@ -1,72 +1,77 @@
-<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+{% load static %}
+<html>
+    <head>
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="{% static 'css/fit.css' %}">
+    </head>
+    <body>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    <h2>Cell Cycle Analyzer</h2>
+                    <p class="lead">Calculate cell cycle parameters from continuous labeling assays</p>
+                </div>
+                <div class="col-md-6">
+                    <a href="http://tu-dresden.de/die_tu_dresden/zentrale_einrichtungen/zih/"><img vspace="10" "Cellcycle Result" src="{% static "zihl.png" %}" /></a>
+                    <a href="http://tu-dresden.de/"><img vspace="10" "Cellcycle Result" src="{% static "TUD.png" %}"  /></a>
+            </div>
+            </div>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-6">
+                <h3>Insert experimental data:</h3>
+                    <!-- Form-->{% include "formset.html" %} 
+            </div>
+                        <div class="col-md-6">
+                <h3>Or upload CSV file:</h3>
+                <!-- Upload-->{% include "parts/upload_csv.html" %} 
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <h1> </h1>
+                    <!--<button class="btn btn-primary" type="button">Calculate</button>  -->
+                </div>
+            </div>
+            <div class="row">
+            <div class="col-md-6">
+            <h3>Result:</h3>
+            <p class="lead">Unbiased parameter estimates from stochastic model</p>
+            <!-- Results table-->{% include "parts/results_table.html" %} 
+            Results are rounded to the 6th decimal digit.
+            </div>
+                <div class="col-md-6">
+            <!-- Result-->{% include "parts/result_img.html" %} 
+                </div>
+            </div>
+        <div class="row">
+            <div class="col-md-12">
+                <h3>Help</h3>	
+                <p> Our model is invariant for any time scale, so please enter all times in the same units (omitting this common unit).<br>
+                    The estimated parameters <math>&tau;</math>, <math><msub><mover> <mi>&sigma;</mi> <mo>^</mo></mover> c </msub> </math> and <math>&sigma;</math> are returned in that same time unit (parameters <math>f</math>, <math>g</math> are unit-free fractions). <br>
+                    Note the cell level variability <math><msub><mover> <mi>&sigma;</mi> <mo>^</mo></mover> c </msub> </math> is slightly different to the actual cell variability <math><msub><mi>&sigma;</mi> c </msub> </math>, see our publication for details. <br>
+                    All user data are only temporally stored on our server as long as they are needed for the parameter estimation. <br>
+                    Empty lines in table will be tolerated.
+                </p>
+                <p> If you used our tool please cite our publication: <a href="https://doi.org/10.1101/550574">Julian Rode, Torsten Goerke, Lutz Brusch and Fabian Rost (2019)<br> How fast are cells dividing: Probabilistic model of continuous labeling assays. bioRxiv doi:10.1101/550574</a> <br>
+                    The web service uses our free and open source python tool: <a href="https://github.com/fabianrost84/clapy">https://github.com/fabianrost84/clapy</a>.</p>
+                For questions or suggestion please write an email to <a href="mailto:julian.rode1@tu-dresden.de">julian.rode1@tu-dresden.de</a>. &emsp;  <a href="https://imc.zih.tu-dresden.de/imc/index.php?page=impressum">Impressum</a>
+                <br>&emsp; 
+            </div>
+        </div>        
 
-<div class="container-fluid">
-    <div class="row">
-		<div class="col-md-6">
-            <h2>Cell Cycle Analyzer</h2>
-            <p class="lead">Calculate cell cycle parameters from continuous labeling assays</p>
-        </div>
-		<div class="col-md-6">
-            {% load static %}
-            <a href="http://tu-dresden.de/die_tu_dresden/zentrale_einrichtungen/zih/"><img vspace="10" "Cellcycle Result" src="{% static "zihl.png" %}" /></a>
-            <a href="http://tu-dresden.de/"><img vspace="10" "Cellcycle Result" src="{% static "TUD.png" %}"  /></a>
-       </div>
-    </div>
-<div class="container-fluid">
-	<div class="row">
-		<div class="col-md-12">
-      <div class="row">
-		<div class="col-md-6">
-          <h3>Insert experimental data:</h3>
-            <!-- Form-->{% include "formset.html" %} 
-	   </div>
-				<div class="col-md-6">
-          <h3>Or upload CSV file:</h3>
-          <!-- Upload-->{% include "parts/upload_csv.html" %} 
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-12">
-            <h1> </h1>
-            <!--<button class="btn btn-primary" type="button">Calculate</button>  -->
-        </div>
-    </div>
-    <div class="row">
-	<div class="col-md-6">
-    <h3>Result:</h3>
-    <p class="lead">Unbiased parameter estimates from stochastic model</p>
-    <!-- Results table-->{% include "parts/results_table.html" %} 
-    Results are rounded to the 6th decimal digit.
-    </div>
-		<div class="col-md-6">
-    <!-- Result-->{% include "parts/result_img.html" %} 
-		</div>
-	</div>
-<div class="row">
-	<div class="col-md-12">
-        <h3>Help</h3>	
-        <p> Our model is invariant for any time scale, so please enter all times in the same units (omitting this common unit).<br>
-            The estimated parameters <math>&tau;</math>, <math><msub><mover> <mi>&sigma;</mi> <mo>^</mo></mover> c </msub> </math> and <math>&sigma;</math> are returned in that same time unit (parameters <math>f</math>, <math>g</math> are unit-free fractions). <br>
-            Note the cell level variability <math><msub><mover> <mi>&sigma;</mi> <mo>^</mo></mover> c </msub> </math> is slightly different to the actual cell variability <math><msub><mi>&sigma;</mi> c </msub> </math>, see our publication for details. <br>
-            All user data are only temporally stored on our server as long as they are needed for the parameter estimation. <br>
-            Empty lines in table will be tolerated.
-        </p>
-        <p> If you used our tool please cite our publication: <a href="https://doi.org/10.1101/550574">Julian Rode, Torsten Goerke, Lutz Brusch and Fabian Rost (2019)<br> How fast are cells dividing: Probabilistic model of continuous labeling assays. bioRxiv doi:10.1101/550574</a> <br>
-            The web service uses our free and open source python tool: <a href="https://github.com/fabianrost84/clapy">https://github.com/fabianrost84/clapy</a>.</p>
-        For questions or suggestion please write an email to <a href="mailto:julian.rode1@tu-dresden.de">julian.rode1@tu-dresden.de</a>. &emsp;  <a href="https://imc.zih.tu-dresden.de/imc/index.php?page=impressum">Impressum</a>
-        <br>&emsp; 
-    </div>
-</div>        
 
-
-<!--
-<ul>
-    {% for name, result in fit.items %}
-    <li>{{name}} - {{result.value}} - {{result.2sigma}}</li>
-    {% endfor %}
-</ul>
--->
-
+        <!--
+        <ul>
+            {% for name, result in fit.items %}
+            <li>{{name}} - {{result.value}} - {{result.2sigma}}</li>
+            {% endfor %}
+        </ul>
+        -->
+    </body>
+</html>

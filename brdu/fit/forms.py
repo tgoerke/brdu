@@ -1,6 +1,6 @@
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
+from crispy_forms.layout import Submit #, Layout, Fieldset, Field
 from django.urls import reverse
 
 from .models import Data, Upload
@@ -30,10 +30,18 @@ class UploadForm(forms.ModelForm):
         super(UploadForm, self).__init__(*arg, **kwargs)
         
         self.helper = FormHelper()
+        
+        """self.helper.layout = Layout(
+            Fieldset('Or upload CSV file:',
+                Field('file',
+                ),
+            ),
+        )"""
+
         self.helper.form_id = 'id-uploadForm'
         #self.helper.form_class = ''
         self.helper.form_method = 'post'
-        self.helper.form_action = reverse('fit:upload', kwargs={'row': row}) # , css_class='btn btn-primary'
-        self.helper.add_input(Submit('submit', 'Upload'))
+        self.helper.form_action = reverse('fit:upload', kwargs={'row': row})
+        self.helper.add_input(Submit('submit', 'Upload')) # , css_class='btn btn-primary'
 
         self.fields['file'].help_text = 'Upload your data in CSV format with <br /> column order as in the table on the left.'
