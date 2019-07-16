@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 def form(request,row=10):
     InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
-    upload_form = UploadForm()
+    upload_form = UploadForm(row=row)
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         #form = InputForm(request.POST)
@@ -116,7 +116,7 @@ def form(request,row=10):
 def upload(request, row=10):
     if request.method != 'POST':
         # No data submitted; create a blank upload_form.
-        upload_form = UploadForm()
+        upload_form = UploadForm(row=row)
 
         # No data submitted; create blank formset or formset with old data.
         InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
@@ -127,7 +127,7 @@ def upload(request, row=10):
             formset = InputFormSet()
     else:
         # POST data submitted; process data.
-        upload_form = UploadForm(request.POST, request.FILES)
+        upload_form = UploadForm(request.POST, request.FILES, row=row)
         if upload_form.is_valid():
             upload = upload_form.save()
 
