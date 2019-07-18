@@ -39,7 +39,7 @@ class Data(models.Model):
 class Upload(models.Model):
     date_uploaded = models.DateTimeField(auto_now_add=True)
     #user_filename = models.CharField(default='', max_length=255)
-    file = models.FileField(upload_to=unique_file_path, validators=[ValidateFileType]) # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField.upload_to
+    file = models.FileField(upload_to=unique_file_path, validators=[ValidateFileType]) #, help_text='Upload your data in CSV format with <br /> column order as in the table on the left.') # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField.upload_to
 
 class Assay(models.Model):
     """

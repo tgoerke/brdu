@@ -1,8 +1,10 @@
+{% load widget_tweaks %}
+
 <form method="post" action="{% url 'fit:form' row %}">
     {% csrf_token %}
-    {% comment %}{{ formset.as_table }}{% endcomment %}
     {{ formset.management_form }}
-    <table>
+    <div class="form-group">
+        <table>
             {% for form in formset %}
                 {% if forloop.first %}
                     <thead>
@@ -22,18 +24,32 @@
                                     {{ hidden }}
                                 {% endfor %}
                             {% endif %}
-                            {{ field.errors.as_ul }}
-                            {{ field }}
+
+                            {% if form.is_bound %}
+                                {% if field.errors %}
+                                    {% render_field field class="form-control is-invalid" %}
+                                    {% for error in field.errors %}
+                                        <div class="invalid-feedback">
+                                            {{ error }}
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    {% render_field field class="form-control is-valid" %}
+                                {% endif %}
+                            {% else %}
+                                {% render_field field class="form-control" %}
+                            {% endif %}
                         </td>
                     {% endfor %}
                 </tr>
             {% endfor %}
-    </table>
-    Depending on your location settings, the optional decimal separator for time is '.' or ','.<br>
-    <button type="submit" name="calc" class="btn btn-primary">Calculate</button>
-    <button type="submit" name="clear" class="btn btn-primary">Clear all data</button> 
-    <button type="submit" name="add" class="btn btn-primary">Add 10 rows</button> 
-    <button type="submit" name="update" class="btn btn-primary">Clear empty lines</button> 
- 
+        </table>
+    </div>
+    Depending on your location settings, the optional decimal separator for time is '.' or ','.<br />
+
+    <button type="submit" name="calc" class="btn btn-success">Calculate</button>
+    <button type="submit" name="add" class="btn btn-secondary">Add 10 rows</button>
+    <button type="submit" name="update" class="btn btn-secondary">Clear empty lines</button>
+    <button type="submit" name="clear" class="btn btn-danger">Clear all data</button>
 </form>
 

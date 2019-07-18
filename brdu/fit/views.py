@@ -40,7 +40,8 @@ def form(request,row=10):
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         #form = InputForm(request.POST)
-        formset = InputFormSet(request.POST, request.FILES)
+        formset = InputFormSet(request.POST, request.FILES, form_kwargs={'row': row}) # https://docs.djangoproject.com/en/2.2/topics/forms/formsets/#passing-custom-parameters-to-formset-forms
+
         #formset = InputFormSet(request.FILES)
         if 'clear' in request.POST:
             request.session["data"] = []
@@ -75,7 +76,7 @@ def form(request,row=10):
             request.session["data"] = data
             #hack to detelte data
             init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
-            formset = InputFormSet(initial=init_data)
+            formset = InputFormSet(initial=init_data, form_kwargs={'row': row})
             if run_calc:
                 if len(ncells) == len(datas) and len(datas) == len(times) and len(times)>0:
                     results, plot = calc(ncells,times,datas)
@@ -107,9 +108,9 @@ def form(request,row=10):
     else:
         if "data" in request.session:
             init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
-            formset = InputFormSet(initial=init_data) 
+            formset = InputFormSet(initial=init_data, form_kwargs={'row': row}) 
         else:
-            formset = InputFormSet()
+            formset = InputFormSet(form_kwargs={'row': row})
 
     return  render(request, 'cell2.html', {'formset': formset,'row': row, 'upload_form': upload_form})
 
@@ -122,9 +123,9 @@ def upload(request, row=10):
         InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
         if "data" in request.session:
             init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
-            formset = InputFormSet(initial=init_data) 
+            formset = InputFormSet(initial=init_data, form_kwargs={'row': row}) 
         else:
-            formset = InputFormSet()
+            formset = InputFormSet(form_kwargs={'row': row})
     else:
         # POST data submitted; process data.
         upload_form = UploadForm(request.POST, request.FILES, row=row)
@@ -135,7 +136,7 @@ def upload(request, row=10):
             df = pd.read_csv(upload.file, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
             init_data = df.to_dict('records')
             InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
-            formset = InputFormSet(initial=init_data)
+            formset = InputFormSet(initial=init_data, form_kwargs={'row': row})
             row = len(init_data)
             InputFormSet.min_num = row # Clear empty lines
 
@@ -147,9 +148,9 @@ def upload(request, row=10):
             InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
             if "data" in request.session:
                 init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
-                formset = InputFormSet(initial=init_data) 
+                formset = InputFormSet(initial=init_data, form_kwargs={'row': row}) 
             else:
-                formset = InputFormSet()
+                formset = InputFormSet(form_kwargs={'row': row})
 
     context = {'row': row, 'formset': formset, 'upload_form': upload_form}
     return render(request, 'cell2.html', context)
