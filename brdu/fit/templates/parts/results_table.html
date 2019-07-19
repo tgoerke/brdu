@@ -1,5 +1,5 @@
 			<table class="table table-sm">
-				<thead>
+				<thead class="thead-light">
 					<tr>
 						<th>
 							
@@ -14,9 +14,9 @@
 				</thead>
 				<tbody>
 					<tr>
-						<td>
+						<th>
                         Cell cycle length <math>&tau;</MATH>
-						</td>
+						</th>
 						<td>
               {{fit.Tc.value|floatformat:6}}	
 						</td>
@@ -24,10 +24,10 @@
               {{fit.Tc.2sigma|floatformat:6}}
 						</td>
 					</tr>
-					<tr class="table-success">
-						<td>
+					<tr>
+						<th>
                             Relative S-phase length <math>f</MATH>
-						</td>
+						</th>
 						<td>
               {{fit.r.value|floatformat:6}}
 						</td>
@@ -35,10 +35,10 @@
               {{fit.r.2sigma|floatformat:6}}
 						</td>
 					</tr>
-					<tr class="table-warning">
-						<td>
+					<tr>
+						<th>
                             Growth fraction <math>g</MATH>
-						</td>
+						</th>
 						<td>
               {{fit.GF.value|floatformat:6}}
 						</td>
@@ -46,10 +46,10 @@
               {{fit.GF.2sigma|floatformat:6}}
 						</td>
 					</tr>
-		        	<tr class="table-warning">
-						<td>
+		        	<tr>
+						<th>
                          Cell level variability  <math><msub><mover> <mi>&sigma;</mi> <mo>^</mo></mover> c </msub> </math>	
-						</td>
+						</th>
 						<td>
               {{fit.sigma_cell.value|floatformat:6}}
 						</td>
@@ -57,10 +57,10 @@
               {{fit.sigma_cell.2sigma|floatformat:6}}
 						</td>
 					</tr>
-                    <tr class="table-danger">
-						<td>
+                    <tr>
+						<th>
                  Sample level variability <math>&sigma;</MATH>
-						</td>
+						</th>
 						<td>
               {{fit.sigma_sample.value|floatformat:6}}
 						</td>
