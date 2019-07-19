@@ -3,6 +3,13 @@
 <form method="post" action="{% url 'fit:form' row %}">
     {% csrf_token %}
     {{ formset.management_form }}
+
+    {% if formset.errors %}
+        <div class="alert alert-danger" role="alert">
+            Something is wrong with your data. For details please check the marked fields below.
+        </div>
+    {% endif %}
+
     <div class="form-group">
         <table>
             {% for form in formset %}
@@ -10,7 +17,7 @@
                     <thead>
                     <tr>
                         {% for field in form.visible_fields %}
-                            <th>{{ field.label|capfirst }}</th>
+                            <th scope="col">{{ field.label|capfirst }}</th>
                         {% endfor %}
                     </tr>
                     </thead>
@@ -27,14 +34,18 @@
 
                             {% if form.is_bound %}
                                 {% if field.errors %}
-                                    {% render_field field class="form-control is-invalid" %}
-                                    {% for error in field.errors %}
-                                        <div class="invalid-feedback">
-                                            {{ error }}
-                                        </div>
-                                    {% endfor %}
+                                    {% render_field field class="form-control is-invalid" data-toggle="tooltip" title=field.errors.as_text %}
+
+                                    {% comment %}
+                                        {% for error in field.errors %}
+                                            <div class="invalid-feedback">
+                                                {{ error }}
+                                            </div>
+                                        {% endfor %}
+                                    {% endcomment %}
                                 {% else %}
-                                    {% render_field field class="form-control is-valid" %}
+                                    {#% render_field field class="form-control is-valid" %#}
+                                    {% render_field field class="form-control" %}
                                 {% endif %}
                             {% else %}
                                 {% render_field field class="form-control" %}

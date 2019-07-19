@@ -4,8 +4,9 @@ from crispy_forms.layout import Submit, Layout, Fieldset, ButtonHolder # , Field
 from crispy_forms.bootstrap import FormActions
 from django.urls import reverse
 
-from .models import Data, Upload
+from .utils import MyErrorList
 
+from .models import Data, Upload
 
 class InputForm(forms.ModelForm):
     class Meta:
@@ -21,6 +22,8 @@ class InputForm(forms.ModelForm):
 
     def __init__(self, *args, row, **kwargs):
         super(InputForm, self).__init__(*args, **kwargs)
+        self.error_class = MyErrorList # https://stackoverflow.com/questions/2125717/django-forms-error-class
+
         self.empty_permitted = True
         
         # Crispy Forms

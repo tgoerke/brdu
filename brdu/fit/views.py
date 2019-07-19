@@ -14,6 +14,10 @@ from django.forms import formset_factory
 from django.shortcuts import redirect
 import json
 
+# Rendering
+from .utils import MyErrorList
+from django.forms.utils import ErrorList
+
 # CSV upload
 from .forms import UploadForm
 from .models import Upload
@@ -111,8 +115,9 @@ def form(request,row=10):
             formset = InputFormSet(initial=init_data, form_kwargs={'row': row}) 
         else:
             formset = InputFormSet(form_kwargs={'row': row})
-
-    return  render(request, 'cell2.html', {'formset': formset,'row': row, 'upload_form': upload_form})
+    #embed()
+    context = {'formset': formset,'row': row, 'upload_form': upload_form}
+    return  render(request, 'cell2.html', context)
 
 def upload(request, row=10):
     if request.method != 'POST':
