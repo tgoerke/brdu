@@ -15,6 +15,7 @@ urlpatterns = [
     path('', views.form, name='index'),
     #path('index.html', views.form, name='index'),
     path('row=<int:row>', views.form, name='form'),
+    path('row=<int:row>', views.form, name='result'),
     path('upload/', views.upload),
     path('upload/row=<int:row>', views.upload, name='upload'),
     #path('experiments/', ListExperimentsView.as_view(), name="experiments-all"),

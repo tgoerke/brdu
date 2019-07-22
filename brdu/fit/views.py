@@ -39,6 +39,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 def form(request,row=10):
+    # embed()
     InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
     upload_form = UploadForm(row=row)
     if request.method == 'POST':

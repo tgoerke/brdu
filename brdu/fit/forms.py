@@ -25,6 +25,19 @@ class InputForm(forms.ModelForm):
         self.error_class = MyErrorList # https://stackoverflow.com/questions/2125717/django-forms-error-class
 
         self.empty_permitted = True
+        
+        """
+        # Crispy Forms
+        self.helper = FormHelper()
+        self.helper.form_id = 'id-experimentalDataFormset'
+        #self.helper.form_class = ''
+        self.helper.form_method = 'post'
+        self.helper.form_action = reverse('fit:form', kwargs={'row': row})
+        self.helper.add_input(Submit('calc', 'Calculate', css_class='btn btn-primary'))
+        self.helper.add_input(Submit('clear', 'Clear all data'))
+        self.helper.add_input(Submit('add', 'Add 10 rows'))
+        self.helper.add_input(Submit('update', 'Clear empty lines'))
+        """
 
 class UploadForm(forms.ModelForm):
     class Meta:
@@ -43,10 +56,10 @@ class UploadForm(forms.ModelForm):
         self.helper = FormHelper()
         
         # self.helper.layout = Layout(
-        #    Fieldset('Or upload CSV file:',
-        #        Field('file',
-        #        ),
-        #    ),
+        #     Fieldset('Or upload CSV file:',
+        #         Field('file',
+        #         ),
+        #     ),
         # )
 
         self.helper.form_id = 'id-uploadForm'
