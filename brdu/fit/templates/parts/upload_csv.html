@@ -20,9 +20,26 @@
 							</label>
 -->					 
 
-{% load crispy_forms_tags %}
-{% crispy upload_form %}
-
+<form action="{% url 'fit:upload' row %}" method="POST" enctype="multipart/form-data">
+	{% csrf_token %}
+  	{{ upload_form.as_p }}
+	<!--
+		provide required formset data for the ManagementForm
+		# https://docs.djangoproject.com/en/2.2/topics/forms/formsets/#understanding-the-managementform
+	-->
+	{{ formset.management_form }}
+	<!--<div class="form-group">
+		<div class="col-md-8">-->
+		<!--</div>
+	</div>-->
+	<p class="help-block">
+    Upload your data in CSV format with <br/>
+    column order as in the table on the left. 
+	</p>
+	<button name="upload_csv" type="submit" class="btn btn-secondary">
+		<span class="fas fa-file-csv" style="margin-right:5px;"></span> Submit
+	</button>
+</form>
 
 					<!--</div>		 
 						<div class="checkbox">

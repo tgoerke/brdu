@@ -58,15 +58,25 @@
 
                     {% endfor %}
                 </tr>
-                
+
             {% endfor %}
         </table>
     </div>
     Depending on your location settings, the optional decimal separator for time is '.' or ','.<br />
 
-    <button type="submit" name="calc" class="btn btn-success">Calculate</button>
-    <button type="submit" name="add" class="btn btn-secondary">Add 10 rows</button>
-    <button type="submit" name="update" class="btn btn-secondary">Clear empty lines</button>
-    <button type="submit" name="clear" class="btn btn-danger">Clear all data</button>
+    <div style="margin-right:5px;"> <!-- https://fontawesome.com/how-to-use/on-the-web/styling/fixed-width-icons -->
+        <button type="submit" name="calc" class="btn btn-success">
+                <span class="fas fa-check fa-fw" ></span> Calculate
+        </button>
+        <button type="submit" name="add" class="btn btn-secondary">
+            <span class="fas fa-plus fa-fw" ></span> Add 10 rows
+        </button>
+        <button type="submit" name="update" class="btn btn-secondary">
+            <span class="fas fa-minus fa-fw" ></span> Clear empty lines
+        </button>
+        <button type="submit" name="clear" class="btn btn-danger">
+                <span class="fas fa-trash fa-fw" ></span> Clear all data
+        </button>
+    </div>
 </form>
 
