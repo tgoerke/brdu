@@ -42,10 +42,12 @@ class Data(models.Model):
     def clean(self):
         # Do validation that requires access to more than a single field.
 
-        # Make sure that number of labeled cells is not greater than overall cell number.
+        # Make sure that the number of labeled cells is not greater than the overall number of cells.
         if self.number_of_labeled_cells is not None and self.number_of_all_cells is not None:
             if self.number_of_labeled_cells > self.number_of_all_cells:
-                raise ValidationError({'number_of_all_cells': 'Ensure this value is greater than or equal to the number of labeled cells.'}) # https://docs.djangoproject.com/en/2.2/ref/models/instances/#django.db.models.Model.clean
+                raise ValidationError({ # https://docs.djangoproject.com/en/2.2/ref/models/instances/#django.db.models.Model.clean
+                    'number_of_labeled_cells': 'Ensure this value is less than or equal to the number of all cells.',
+                    'number_of_all_cells': 'Ensure this value is greater than or equal to the number of labeled cells.'})
 
 class Upload(models.Model):
     date_uploaded = models.DateTimeField(auto_now_add=True)
