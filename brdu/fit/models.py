@@ -1,6 +1,9 @@
 from django.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django import forms
+
+# Validation
+from django.core.validators import MaxValueValidator, MinValueValidator, FileExtensionValidator
+from django.core.exceptions import ValidationError
 
 # CSV file handling
 from .utils import unique_file_path
@@ -30,16 +33,24 @@ class File(models.Model):
 class Data(models.Model):
     # created = models.DateTimeField(auto_now_add=True)
     #measurement_time = models.CharField(max_length=100, blank=True, default='')
-    measurement_time = models.FloatField()
+    measurement_time = models.FloatField(validators=[MinValueValidator(0)])
     number_of_labeled_cells = models.IntegerField(validators=[MinValueValidator(0)])
     number_of_all_cells = models.IntegerField(validators=[MinValueValidator(0)])
     class Meta:
         ordering = ('measurement_time',)
+    
+    def clean(self):
+        # Do validation that requires access to more than a single field.
+
+        # Make sure that number of labeled cells is not greater than overall cell number.
+        if self.number_of_labeled_cells is not None and self.number_of_all_cells is not None:
+            if self.number_of_labeled_cells > self.number_of_all_cells:
+                raise ValidationError({'number_of_all_cells': 'Ensure this value is greater than or equal to the number of labeled cells.'}) # https://docs.djangoproject.com/en/2.2/ref/models/instances/#django.db.models.Model.clean
 
 class Upload(models.Model):
     date_uploaded = models.DateTimeField(auto_now_add=True)
     #user_filename = models.CharField(default='', max_length=255)
-    file = models.FileField(upload_to=unique_file_path, validators=[ValidateFileType]) #, help_text='Upload your data in CSV format with <br /> column order as in the table on the left.') # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField.upload_to
+    file = models.FileField(upload_to=unique_file_path, validators=[ValidateFileType]) # FileExtensionValidator(['csv']); help_text='Upload your data in CSV format with <br /> column order as in the table on the left.') # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField.upload_to
 
 class Assay(models.Model):
     """

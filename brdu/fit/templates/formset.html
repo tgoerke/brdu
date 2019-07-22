@@ -6,13 +6,14 @@
 
     {% if formset.errors %}
         <div class="alert alert-danger" role="alert">
-            Something is wrong with your data. For details please check the marked fields below.
+            Something is wrong with your data. For details please check the highlighted fields below.
         </div>
     {% endif %}
 
     <div class="form-group">
         <table>
             {% for form in formset %}
+            
                 {% if forloop.first %}
                     <thead>
                     <tr>
@@ -22,8 +23,10 @@
                     </tr>
                     </thead>
                 {% endif %}
+
                 <tr>
                     {% for field in form.visible_fields %}
+
                         <td >
                             {# Include the hidden fields in the form #}
                             {% if forloop.first %}
@@ -43,6 +46,7 @@
                                             </div>
                                         {% endfor %}
                                     {% endcomment %}
+
                                 {% else %}
                                     {#% render_field field class="form-control is-valid" %#}
                                     {% render_field field class="form-control" %}
@@ -51,8 +55,10 @@
                                 {% render_field field class="form-control" %}
                             {% endif %}
                         </td>
+
                     {% endfor %}
                 </tr>
+                
             {% endfor %}
         </table>
     </div>
