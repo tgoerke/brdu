@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 def form(request):
     #embed()
 
-    row_query_string = request.GET.get('row', '10') # Get query string (?row=...)
+    row_query_string = request.GET.get('rows', '10') # Get query string (?row=...)
     try:
         row = int(row_query_string)
     except:
@@ -107,10 +107,10 @@ def form(request):
                     
                     return render(request, 'cell2.html', {'formset': formset, 'fit': results, 'assay': assay, 'row': row, 'upload_form': upload_form})
             if run_add:
-                url = '{:s}?row={:d}'.format(reverse('fit:form'), row+10)
+                url = '{:s}?rows={:d}'.format(reverse('fit:form'), row+10)
                 return redirect(url)
             if run_update:
-                url = '{:s}?row={:d}'.format(reverse('fit:form'), len(ncells))
+                url = '{:s}?rows={:d}'.format(reverse('fit:form'), len(ncells))
                 return redirect(url)
 
             return render(request, 'cell2.html', {'formset': formset, 'row': row, 'upload_form': upload_form})
@@ -131,7 +131,7 @@ def form(request):
 
 def upload(request):
 
-    row_query_string = request.GET.get('row', '10') # Get query string (?row=...)
+    row_query_string = request.GET.get('rows', '10') # Get query string (?row=...)
     try:
         row = int(row_query_string)
     except:
