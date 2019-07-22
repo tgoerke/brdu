@@ -38,8 +38,15 @@ import logging
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
-def form(request,row=10):
-    # embed()
+def form(request):
+    #embed()
+
+    row_query_string = request.GET.get('row', '10') # Get query string (?row=...)
+    try:
+        row = int(row_query_string)
+    except:
+        row = 10
+
     InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
     upload_form = UploadForm(row=row)
     if request.method == 'POST':
@@ -100,9 +107,11 @@ def form(request,row=10):
                     
                     return render(request, 'cell2.html', {'formset': formset, 'fit': results, 'assay': assay, 'row': row, 'upload_form': upload_form})
             if run_add:
-                return redirect('fit:form', row=row+10)
+                url = '{:s}?row={:d}'.format(reverse('fit:form'), row+10)
+                return redirect(url)
             if run_update:
-                return redirect('fit:form', row=len(ncells))
+                url = '{:s}?row={:d}'.format(reverse('fit:form'), len(ncells))
+                return redirect(url)
 
             return render(request, 'cell2.html', {'formset': formset, 'row': row, 'upload_form': upload_form})
 
@@ -120,7 +129,14 @@ def form(request,row=10):
     context = {'formset': formset,'row': row, 'upload_form': upload_form}
     return  render(request, 'cell2.html', context)
 
-def upload(request, row=10):
+def upload(request):
+
+    row_query_string = request.GET.get('row', '10') # Get query string (?row=...)
+    try:
+        row = int(row_query_string)
+    except:
+        row = 10
+
     if request.method != 'POST':
         # No data submitted; create a blank upload_form.
         upload_form = UploadForm(row=row)

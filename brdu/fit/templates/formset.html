@@ -1,6 +1,6 @@
 {% load widget_tweaks %}
 
-<form method="post" action="{% url 'fit:form' row %}">
+<form method="post" action="{% url 'fit:form' %}?row={{row}}">
     {% csrf_token %}
     {{ formset.management_form }}
 
