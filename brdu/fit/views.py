@@ -163,7 +163,7 @@ def upload(request):
             InputFormSet.min_num = row # Clear empty lines
 
             # Delete file
-            upload.file.delete() # delete CSV file
+            #upload.file.delete() # delete CSV file; Is done now by 'django_cleanup' automatically.
             upload.delete() # delete database entry
         else:
             # Invalid form, use old data.

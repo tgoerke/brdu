@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     # My apps
     'fit',
 
-    'django_cleanup', # Dhould go after your apps; Automatically deletes old file for FileField and ImageField. It also deletes files on models instance deletion.
+    'django_cleanup', # Should go after your apps; Automatically deletes old file for FileField and ImageField. It also deletes files on models instance deletion.
 
 ]
 

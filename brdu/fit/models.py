@@ -53,7 +53,7 @@ class Data(models.Model):
 class Upload(models.Model):
     date_uploaded = models.DateTimeField(auto_now_add=True)
     #user_filename = models.CharField(default='', max_length=255)
-    file = models.FileField(upload_to=unique_file_path, validators=[ValidateFileType]) #, FileExtensionValidator(['csv'])]) # help_text='Upload your data in CSV format with <br /> column order as in the table on the left.') # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField.upload_to
+    file = models.FileField(upload_to=unique_file_path, validators=[ValidateFileType], max_length=255) #, FileExtensionValidator(['csv'])]) # help_text='Upload your data in CSV format with <br /> column order as in the table on the left.') # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField.upload_to; https://stackoverflow.com/questions/26575635/django-increase-filefield-length
 
 class Assay(models.Model):
     """
@@ -62,7 +62,7 @@ class Assay(models.Model):
         - estimated values (not implemented yet)
     """
     date_added = models.DateTimeField(auto_now_add=True)
-    plot = models.ImageField(upload_to=unique_file_path)
+    plot = models.ImageField(upload_to=unique_file_path, max_length=255)
     session = models.ForeignKey(Session, default='tfzs3e7d6x13029nvi88p9z7rhwwurcq', on_delete=models.CASCADE) # assay data is bound to a session and will be deleted together on removal of the session
 
     @property
