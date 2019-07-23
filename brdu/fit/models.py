@@ -46,13 +46,14 @@ class Data(models.Model):
         if self.number_of_labeled_cells is not None and self.number_of_all_cells is not None:
             if self.number_of_labeled_cells > self.number_of_all_cells:
                 raise ValidationError({ # https://docs.djangoproject.com/en/2.2/ref/models/instances/#django.db.models.Model.clean
-                    'number_of_labeled_cells': 'Ensure this value is less than or equal to the number of all cells.',
-                    'number_of_all_cells': 'Ensure this value is greater than or equal to the number of labeled cells.'})
+                    'number_of_labeled_cells': 'Ensure this value is less than or equal to the {:s}.'.format(self._meta.get_field('number_of_all_cells').verbose_name),
+                    'number_of_all_cells': 'Ensure this value is greater than or equal to the {:s}.'.format(self._meta.get_field('number_of_labeled_cells').verbose_name)
+                    })
 
 class Upload(models.Model):
     date_uploaded = models.DateTimeField(auto_now_add=True)
     #user_filename = models.CharField(default='', max_length=255)
-    file = models.FileField(upload_to=unique_file_path, validators=[ValidateFileType]) # FileExtensionValidator(['csv']); help_text='Upload your data in CSV format with <br /> column order as in the table on the left.') # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField.upload_to
+    file = models.FileField(upload_to=unique_file_path, validators=[ValidateFileType]) #, FileExtensionValidator(['csv'])]) # help_text='Upload your data in CSV format with <br /> column order as in the table on the left.') # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField.upload_to
 
 class Assay(models.Model):
     """

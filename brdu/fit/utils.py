@@ -4,6 +4,7 @@ from django.conf import settings
 from IPython import embed
 
 from django.forms.utils import ErrorList
+from django.utils.html import format_html_join
 
 def unique_file_path(instance, filename, subdir=''):
     """
@@ -24,3 +25,7 @@ class MyErrorList(ErrorList):
     """
     def as_text(self):
         return '\n'.join(self)
+    
+    def as_html_text(self):
+        #return '<br />'.join(self)
+        return format_html_join('','{}<br />', ((error,) for error in self))

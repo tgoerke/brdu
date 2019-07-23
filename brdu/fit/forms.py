@@ -51,6 +51,8 @@ class UploadForm(forms.ModelForm):
     def __init__(self, *args, row, **kwargs):
         #row = kwargs.pop('row') # get row parameter for form_action = reverse()
         super(UploadForm, self).__init__(*args, **kwargs)
+
+        self.error_class = MyErrorList
         
         """
         self.helper = FormHelper()

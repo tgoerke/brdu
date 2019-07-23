@@ -37,7 +37,7 @@
 
                             {% if form.is_bound %}
                                 {% if field.errors %}
-                                    {% render_field field class="form-control is-invalid" data-toggle="tooltip" title=field.errors.as_text %}
+                                    {% render_field field class="form-control is-invalid" data-toggle="tooltip" data-html="true" title=field.errors.as_html_text %}
 
                                     {% comment %}
                                         {% for error in field.errors %}
@@ -65,7 +65,7 @@
     Depending on your location settings, the optional decimal separator for time is '.' or ','.<br />
 
     <!--div style="margin-right:5px;"--> <!-- https://fontawesome.com/how-to-use/on-the-web/styling/fixed-width-icons -->
-        <button type="submit" name="calc" id="btn-loading" class="btn btn-success">
+        <button type="submit" name="calc" id="btn-calc" class="btn btn-success">
                 <span class="fas fa-check fa-fw mr-1"></span>Calculate
         </button>
         <button type="submit" name="add" class="btn btn-secondary">

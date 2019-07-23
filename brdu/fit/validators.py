@@ -5,7 +5,7 @@ from .utils import unique_file_path
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 
 from IPython import embed
 
@@ -28,5 +28,5 @@ def ValidateFileType(upload, allowed_types=CSV_TYPES):
 
     # Raise ValidationError if file type is wrong
     if file_type not in allowed_types:
-        message = mark_safe('File type (<code>{:s}</code>) not supported.'.format(file_type))
+        message = format_html('File type <code>{}</code> not supported.', file_type)
         raise ValidationError(message)
