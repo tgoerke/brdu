@@ -112,13 +112,26 @@
         <!-- Loading animation for buttons. -->
         <script>
             $('#btn-calc').click(function() { // https://mdbootstrap.com/docs/jquery/components/spinners/#buttons
-                $('#btn-calc').html('<span class="spinner-grow spinner-grow-sm mr-2" role="status" aria-hidden="true"></span>Loading...').addClass('disabled'); // add spinner
-                //$(this).prop("disabled", true); // disable button
+                var form = document.getElementById('id_formset');
+                var isValidForm = form.checkValidity();
+                if (isValidForm) { // Start spinning animation only when client-side validation succeeds.
+                    $('#btn-calc').html('<span class="spinner-grow spinner-grow-sm mr-2" role="status" aria-hidden="true"></span>Loading...').addClass('disabled'); // add spinner
+                    //$(this).prop("disabled", true); // disable button
+                }
             });
        
-            $('#btn-upload').click(function() { // https://mdbootstrap.com/docs/jquery/components/spinners/#buttons
+            $('#btn-upload2').click(function() { // https://mdbootstrap.com/docs/jquery/components/spinners/#buttons
                 var field = document.forms["upload_form"]["file"].value;
                 if (field != "") {
+                    $(this).html('<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Loading...').addClass('disabled');
+                    //$(this).prop("disabled", true);
+                }
+            });
+
+            $('#btn-upload').click(function() {
+                var form = document.getElementById('id_upload_form');
+                var isValidForm = form.checkValidity();
+                if (isValidForm) { // https://medium.com/the-ui-files/form-validation-with-javascript-4fcf4dd32846
                     $(this).html('<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Loading...').addClass('disabled');
                     //$(this).prop("disabled", true);
                 }
