@@ -30,6 +30,8 @@ from .models import Assay
 from django.core.files.base import ContentFile
 import os
 from django.contrib.sessions.models import Session
+from django.contrib.sessions.backends.db import SessionStore
+from django.shortcuts import get_object_or_404
 
 # Debugging and logging
 from IPython import embed
@@ -93,18 +95,21 @@ def form(request):
                 if len(ncells) == len(datas) and len(datas) == len(times) and len(times)>0:
                     results, plot = calc(ncells,times,datas)
 
-                    # Save plot to media/database
+                    # Save plot in media folder; save corresponding database entry.
                     # https://docs.djangoproject.com/en/2.2/ref/files/file/#additional-methods-on-files-attached-to-objects
                     assay = Assay()
 
-                    # Link temporary stored assay data to current session
-                    session = Session.objects.get(session_key=request.session.session_key)
+                    # Get the 'Session' instance
+                    if not request.session.session_key: # New client: no session saved for assignment to assay-Model yet.
+                        request.session.save()
+                    session = get_object_or_404(Session, session_key=request.session.session_key) # Generate 'Session' instance from 'SessionStore' object.
+                    # session = Session.objects.get(session_key=request.session.session_key)
+
+                    # Link temporarily stored assay data to current session
                     assay.session = session
-                    
                     assay.plot.save('dummy.png', ContentFile(plot), save=False) # filename will be randomized anyway
                     assay.save()
                     #plot_filename = os.path.basename(assay.plot.name) # only filename, not the whole path
-                    
                     return render(request, 'cell2.html', {'formset': formset, 'fit': results, 'assay': assay, 'row': row, 'upload_form': upload_form})
             if run_add:
                 url = '{:s}?rows={:d}'.format(reverse('fit:form'), row+10)
