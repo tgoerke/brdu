@@ -12,4 +12,4 @@ from .clapy import web_fit
 
 
 def calc(ncells=None,times=None,datas=None):
-    return web_fit(ncells,times,datas)
+    return web_fit(times, datas, ncells)
