@@ -12,6 +12,14 @@ djangorestframework = "*"
 scipy = "*"
 iminuit = "*"
 matplotlib = "*"
+pandas = "*"
+ipython = "*"
+python-magic = "*"
+pillow = "*"
+django-cleanup = "*"
+django-crispy-forms = "*"
+django-widget-tweaks = "*"
+
 
 [requires]
 python_version = "3.7"
