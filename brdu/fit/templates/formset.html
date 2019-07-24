@@ -5,8 +5,11 @@
     {{ formset.management_form }}
 
     {% if formset.errors %}
-        <div class="alert alert-danger" role="alert">
-            Something is wrong with your data. For details please check the highlighted fields below.
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Something is wrong with your data.</strong> For details please check the highlighted fields below.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
     {% endif %}
 
@@ -64,19 +67,27 @@
     </div>
     Depending on your location settings, the optional decimal separator for time is '.' or ','.<br />
 
-    <!--div style="margin-right:5px;"--> <!-- https://fontawesome.com/how-to-use/on-the-web/styling/fixed-width-icons -->
-        <button type="submit" name="calc" id="btn-calc" class="btn btn-success">
-                <span class="fas fa-check fa-fw mr-1"></span>Calculate
-        </button>
-        <button type="submit" name="add" class="btn btn-secondary">
-            <span class="fas fa-plus fa-fw mr-1"></span>Add 10 rows
-        </button>
-        <button type="submit" name="update" class="btn btn-secondary">
-            <span class="fas fa-minus fa-fw mr-1"></span>Clear empty lines
-        </button>
-        <button type="submit" name="clear" class="btn btn-danger">
-                <span class="fas fa-trash fa-fw mr-1"></span>Clear all data
-        </button>
-    <!--/div-->
+    <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups"> <!-- https://getbootstrap.com/docs/4.3/components/button-group/#button-toolbar -->
+        <!--div style="margin-right:5px;"--> <!-- https://fontawesome.com/how-to-use/on-the-web/styling/fixed-width-icons -->
+        <div class="btn-group mr-2" role="group" aria-label="First group">   
+            <button type="submit" name="calc" id="btn-calc" class="btn btn-success">
+                    <span class="fas fa-check fa-fw mr-1"></span>Calculate
+            </button>
+        </div>
+        <div class="btn-group mr-2" role="group" aria-label="Second group">
+            <button type="submit" name="add" class="btn btn-secondary">
+                <span class="fas fa-plus fa-fw mr-1"></span>Add 10 rows
+            </button>
+            <button type="submit" name="update" class="btn btn-secondary">
+                <span class="fas fa-minus fa-fw mr-1"></span>Clear empty lines
+            </button>
+         </div>
+         <div class="btn-group" role="group" aria-label="Third group">
+            <button type="submit" name="clear" class="btn btn-danger">
+                    <span class="fas fa-trash fa-fw mr-1"></span>Clear all data
+            </button>
+        </div>
+        <!--/div-->
+    </div>
 </form>
 
