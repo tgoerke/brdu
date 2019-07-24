@@ -1,3 +1,4 @@
+/* Turn off asterisk for required fields of Crispy Forms */
 .asteriskField {
     display: none;
 }

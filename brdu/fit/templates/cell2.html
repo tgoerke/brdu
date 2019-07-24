@@ -24,7 +24,17 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-6">
-                    <h2>Cell Cycle Analyzer</h2>
+                    <div class="row justify-content-between align-items-center">
+                        <div class="col-md-auto">
+                            <h2>Cell Cycle Analyzer</h2>
+                        </div>
+                        <div class="col-md-auto">
+                            <button type="button" class="btn btn-outline-info btn-sm" data-toggle="popover" data-placement="bottom" data-html="true"
+                                data-content="Rode, J., Goerke, T., Brusch, L., Rost, F. (2019). How fast are cells dividing: Probabilistic model of continuous labeling assays. <em>bioRxiv.</em> <a <a target='_blank' rel='noopener noreferrer' href='https://www.biorxiv.org/content/10.1101/550574v1'>doi:10.1101/550574</a>.">
+                                Cite us
+                            </button>
+                        </div>
+                    </div>
                     <p class="lead">Calculate cell cycle parameters from continuous labeling assays</p>
                 </div>
                 <div class="col-md-6">
@@ -99,6 +109,13 @@
         <script>
             $(function () {
                 $('[data-toggle="tooltip"]').tooltip() // https://getbootstrap.com/docs/4.3/components/tooltips/#example-enable-tooltips-everywhere
+            })
+        </script>
+
+        <!-- Popover for citation -->
+        <script>
+            $(function () {
+                $('[data-toggle="popover"]').popover()
             })
         </script>
 
