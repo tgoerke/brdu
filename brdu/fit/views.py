@@ -25,6 +25,9 @@ from .validators import ValidateFileType
 import pandas as pd
 from django.conf import settings
 
+# Download
+from django.http import HttpResponse, Http404
+
 # Plot
 from .models import Assay
 from django.core.files.base import ContentFile
@@ -176,3 +179,14 @@ def upload(request):
 
     context = {'row': row, 'formset': formset, 'upload_form': upload_form}
     return render(request, 'cell2.html', context)
+
+def download(request):
+    filename_query_string = request.GET.get('file', '') # ?file=
+
+    file_path = os.path.join(settings.STATIC_ROOT, 'downloads', filename_query_string)
+    if os.path.isfile(file_path): # https://stackoverflow.com/a/36394206/7192373
+        with open(file_path, 'rb') as f:
+            response = HttpResponse(f.read(), content_type="text/plain")
+            response['Content-Disposition'] = 'attachment; filename=' + os.path.basename(file_path) # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition#Syntax
+            return response
+    raise Http404
