@@ -61,8 +61,12 @@
 			<span class="sr-only">Toggle Dropdown</span>
 		</button>
 		<div class="dropdown-menu">
-			<a class="dropdown-item" href="{% url 'fit:download' %}?file=brdu_example_data.csv">Download CSV file with example data</a>
-			<!--a class="dropdown-item" href="{% url 'fit:upload' %}">Load example data</a-->
+			<a class="dropdown-item" href="{% url 'fit:download' %}?file=brdu_example_data.csv">
+					<span class="fas fa-download fa-fw mr-1"></span>Download CSV file with example data
+			</a>
+			<a class="dropdown-item" href="{% url 'fit:download' %}?file=brdu_example_data.csv&destination=form">
+					<span class="fas fa-tasks fa-fw mr-1"></span>Insert example data
+			</a>
 		</div>
 	</div>
 </form>

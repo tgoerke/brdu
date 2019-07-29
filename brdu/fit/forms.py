@@ -20,7 +20,7 @@ class InputForm(forms.ModelForm):
             'number_of_labeled_cells': forms.NumberInput(attrs={'style': 'width:24ch'}),
         }
 
-    def __init__(self, *args, row, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(InputForm, self).__init__(*args, **kwargs)
         self.error_class = MyErrorList # https://stackoverflow.com/questions/2125717/django-forms-error-class
 
@@ -48,7 +48,7 @@ class UploadForm(forms.ModelForm):
         #    "file": "Help text."
         #}
     
-    def __init__(self, *args, row, **kwargs):
+    def __init__(self, *args, **kwargs):
         #row = kwargs.pop('row') # get row parameter for form_action = reverse()
         super(UploadForm, self).__init__(*args, **kwargs)
 

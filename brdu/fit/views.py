@@ -53,11 +53,11 @@ def form(request):
         row = 10
 
     InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
-    upload_form = UploadForm(row=row)
+    upload_form = UploadForm()
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         #form = InputForm(request.POST)
-        formset = InputFormSet(request.POST, request.FILES, form_kwargs={'row': row}) # https://docs.djangoproject.com/en/2.2/topics/forms/formsets/#passing-custom-parameters-to-formset-forms
+        formset = InputFormSet(request.POST, request.FILES) # https://docs.djangoproject.com/en/2.2/topics/forms/formsets/#passing-custom-parameters-to-formset-forms
 
         #formset = InputFormSet(request.FILES)
         if 'clear' in request.POST:
@@ -93,7 +93,7 @@ def form(request):
             request.session["data"] = data
             #hack to detelte data
             init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
-            formset = InputFormSet(initial=init_data, form_kwargs={'row': row})
+            formset = InputFormSet(initial=init_data)
             if run_calc:
                 if len(ncells) == len(datas) and len(datas) == len(times) and len(times)>0:
                     results, plot = calc(ncells,times,datas)
@@ -130,15 +130,14 @@ def form(request):
     else:
         if "data" in request.session:
             init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
-            formset = InputFormSet(initial=init_data, form_kwargs={'row': row}) 
+            formset = InputFormSet(initial=init_data) 
         else:
-            formset = InputFormSet(form_kwargs={'row': row})
+            formset = InputFormSet()
     #embed()
     context = {'formset': formset,'row': row, 'upload_form': upload_form}
     return  render(request, 'cell2.html', context)
 
 def upload(request):
-
     row_query_string = request.GET.get('rows', '10') # Get query string (?row=...)
     try:
         row = int(row_query_string)
@@ -147,18 +146,18 @@ def upload(request):
 
     if request.method != 'POST':
         # No data submitted; create a blank upload_form.
-        upload_form = UploadForm(row=row)
+        upload_form = UploadForm()
 
         # No data submitted; create blank formset or formset with old data.
         InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
-        if "data" in request.session:
+        if "data" in request.session: # old data
             init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
-            formset = InputFormSet(initial=init_data, form_kwargs={'row': row}) 
-        else:
-            formset = InputFormSet(form_kwargs={'row': row})
+            formset = InputFormSet(initial=init_data) 
+        else: # blank form
+            formset = InputFormSet()
     else:
         # POST data submitted; process data.
-        upload_form = UploadForm(request.POST, request.FILES, row=row)
+        upload_form = UploadForm(request.POST, request.FILES)
         if upload_form.is_valid():
             upload = upload_form.save()
 
@@ -166,7 +165,7 @@ def upload(request):
             df = pd.read_csv(upload.file, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
             init_data = df.to_dict('records')
             InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
-            formset = InputFormSet(initial=init_data, form_kwargs={'row': row})
+            formset = InputFormSet(initial=init_data)
             row = len(init_data)
             InputFormSet.min_num = row # Clear empty lines
 
@@ -178,20 +177,46 @@ def upload(request):
             InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
             if "data" in request.session:
                 init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
-                formset = InputFormSet(initial=init_data, form_kwargs={'row': row}) 
+                formset = InputFormSet(initial=init_data) 
             else:
-                formset = InputFormSet(form_kwargs={'row': row})
+                formset = InputFormSet()
 
     context = {'row': row, 'formset': formset, 'upload_form': upload_form}
     return render(request, 'cell2.html', context)
 
 def download(request):
-    filename_query_string = request.GET.get('file', '') # ?file=
+    filename = request.GET.get('file', '') # ?file=...
+    destination = request.GET.get('destination', 'user') # &destination=...
 
-    file_path = os.path.join(settings.STATIC_ROOT, 'downloads', filename_query_string)
-    if os.path.isfile(file_path): # https://stackoverflow.com/a/36394206/7192373
-        with open(file_path, 'rb') as f:
-            response = HttpResponse(f.read(), content_type="text/plain")
-            response['Content-Disposition'] = 'attachment; filename=' + os.path.basename(file_path) # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition#Syntax
-            return response
-    raise Http404
+    if destination == 'user': # let the browser download the file
+        file_path = os.path.join(settings.STATIC_ROOT, 'downloads', filename)
+        if os.path.isfile(file_path): # https://stackoverflow.com/a/36394206/7192373
+            with open(file_path, 'rb') as f:
+                response = HttpResponse(f.read(), content_type="text/plain")
+                response['Content-Disposition'] = 'attachment; filename=' + os.path.basename(file_path) # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition#Syntax
+                return response
+        else:
+            raise Http404
+    elif destination == 'form': # Fill formset with example data.
+        file_path = os.path.join(settings.STATIC_ROOT, 'downloads', filename)
+        if os.path.isfile(file_path):
+            # Parse CSV file
+            with open(file_path, 'rb') as f:
+                df = pd.read_csv(f, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
+            init_data = df.to_dict('records')
+
+            # Create empty forms
+            InputFormSet = formset_factory(InputForm,extra=0,can_delete=False)
+            upload_form = UploadForm()
+
+            # Overwrite formset data
+            formset = InputFormSet(initial=init_data)
+            row = len(init_data)
+            InputFormSet.min_num = row # Clear empty lines
+
+            context = {'row': row, 'formset': formset, 'upload_form': upload_form}
+            return render(request, 'cell2.html', context)
+        else: # Non-existing file.
+            raise Http404
+    else: # Undefined destination.
+        raise Http404
