@@ -28,9 +28,11 @@
                 {% endif %}
 
                 <tr>
-                    {% for field in form.visible_fields %}
-
-                        <td >
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">{{ forloop.counter }}</span>
+                        </div>
+                        {% for field in form.visible_fields %}
                             {# Include the hidden fields in the form #}
                             {% if forloop.first %}
                                 {% for hidden in form.hidden_fields %}
@@ -57,9 +59,8 @@
                             {% else %}
                                 {% render_field field class="form-control" %}
                             {% endif %}
-                        </td>
-
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
                 </tr>
 
             {% endfor %}
