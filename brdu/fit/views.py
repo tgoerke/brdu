@@ -188,35 +188,41 @@ def download(request):
     filename = request.GET.get('file', '') # ?file=...
     destination = request.GET.get('destination', 'user') # &destination=...
 
-    if destination == 'user': # let the browser download the file
-        file_path = os.path.join(settings.STATIC_ROOT, 'downloads', filename)
-        if os.path.isfile(file_path): # https://stackoverflow.com/a/36394206/7192373
-            with open(file_path, 'rb') as f:
-                response = HttpResponse(f.read(), content_type="text/plain")
-                response['Content-Disposition'] = 'attachment; filename=' + os.path.basename(file_path) # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition#Syntax
-                return response
-        else:
-            raise Http404
-    elif destination == 'form': # Fill formset with example data.
-        file_path = os.path.join(settings.STATIC_ROOT, 'downloads', filename)
-        if os.path.isfile(file_path):
-            # Parse CSV file
-            with open(file_path, 'rb') as f:
-                df = pd.read_csv(f, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
-            init_data = df.to_dict('records')
+    # Validate file path.
+    subdir = 'downloads' # Folder, where the downloadable files are located.
+    download_path = os.path.join(settings.STATIC_ROOT, subdir)
+    file_path = os.path.abspath(os.path.join(download_path, filename))
 
-            # Create empty forms
-            InputFormSet = formset_factory(InputForm,extra=0,can_delete=False)
-            upload_form = UploadForm()
-
-            # Overwrite formset data
-            formset = InputFormSet(initial=init_data)
-            row = len(init_data)
-            InputFormSet.min_num = row # Clear empty lines
-
-            context = {'row': row, 'formset': formset, 'upload_form': upload_form}
-            return render(request, 'cell2.html', context)
-        else: # Non-existing file.
-            raise Http404
-    else: # Undefined destination.
+    if download_path not in file_path: # User is trying to access file outside allowed download_path.
         raise Http404
+    else:
+        if destination == 'user': # Let the browser download the file.
+            if os.path.isfile(file_path): # User requests a file and not a folder; https://stackoverflow.com/a/36394206/7192373
+                with open(file_path, 'rb') as f:
+                    response = HttpResponse(f.read(), content_type="text/plain")
+                    response['Content-Disposition'] = 'attachment; filename=' + os.path.basename(file_path) # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition#Syntax
+                    return response
+            else:
+                raise Http404
+        elif destination == 'form': # Fill formset with example data.
+            if os.path.isfile(file_path):
+                # Parse CSV file
+                with open(file_path, 'rb') as f:
+                    df = pd.read_csv(f, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
+                init_data = df.to_dict('records')
+
+                # Create empty forms
+                InputFormSet = formset_factory(InputForm,extra=0,can_delete=False)
+                upload_form = UploadForm()
+
+                # Overwrite formset data
+                formset = InputFormSet(initial=init_data)
+                row = len(init_data)
+                InputFormSet.min_num = row # Clear empty lines
+
+                context = {'row': row, 'formset': formset, 'upload_form': upload_form}
+                return render(request, 'cell2.html', context)
+            else: # Non-existing file.
+                raise Http404
+        else: # Undefined destination.
+            raise Http404
