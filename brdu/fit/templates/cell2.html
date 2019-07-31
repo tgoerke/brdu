@@ -21,11 +21,11 @@
         <title>Cell Cycle Analyzer</title>
     </head>
     <body>
-        <div class="container-fluid">
-
+        <div class="container" style="margin: .5rem;">
+            
             <div class="row">
-                <div class="col-md-6">
-                    <div class="row justify-content-between align-items-center">
+                <div class="col-md-auto">
+                    <div class="row justify-content-start align-items-center">
                         <div class="col-md-auto">
                             <h2>Cell Cycle Analyzer</h2>
                         </div>
@@ -38,19 +38,21 @@
                     </div>
                     <p class="lead">Calculate cell cycle parameters from continuous labeling assays</p>
                 </div>
-                <div class="col-md-6">
-                    <a href="http://tu-dresden.de/die_tu_dresden/zentrale_einrichtungen/zih/"><img vspace="10" "Cellcycle Result" src="{% static "zihl.png" %}" /></a>
-                    <a href="http://tu-dresden.de/"><img vspace="10" "Cellcycle Result" src="{% static "TUD.png" %}" /></a>
+                <div class="col-md-auto">
+                    <a href="http://tu-dresden.de/die_tu_dresden/zentrale_einrichtungen/zih/"><img src="{% static "zihl.png" %}" height="55" vspace="10" /></a>
+                </div>
+                <div class="col-md-auto">
+                    <a href="http://tu-dresden.de/"><img src="{% static "TUD.png" %}" height="55" vspace="10" /></a>
                 </div>
             </div>
         
             <div class="row">
-                <div class="col-auto">
-                    <h3>Insert experimental data:</h3>
+                <div class="col-md-auto">
+                    <h3 style="margin-top: .5rem;">Insert experimental data:</h3>
                     <!-- Form-->{% include "formset.html" %}
                 </div>
-                <div class="col-lg-4">
-                    <h3>Or upload CSV file:</h3>
+                <div class="col-md-4">
+                    <h3 style="margin-top: .5rem;">Or upload CSV file:</h3>
                     <!-- Upload-->{% include "parts/upload_csv.html" %}
                 </div>
             </div>

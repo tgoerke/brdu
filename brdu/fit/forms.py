@@ -16,9 +16,7 @@ class InputForm(forms.ModelForm):
             'number_of_labeled_cells',
             'number_of_all_cells',
         ] #'__all__'
-        widgets = {
-            'number_of_labeled_cells': forms.NumberInput(attrs={'style': 'width:24ch'}),
-        }
+        #widgets = {field: forms.NumberInput(attrs={'style': 'width:24ch'}) for field in fields}
 
     def __init__(self, *args, **kwargs):
         super(InputForm, self).__init__(*args, **kwargs)
