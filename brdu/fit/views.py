@@ -44,8 +44,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 def form(request):
-    #embed()
-
     row_query_string = request.GET.get('rows', '10') # Get query string (?row=...)
     try:
         row = int(row_query_string)
@@ -126,14 +124,13 @@ def form(request):
         else:
             print(formset)
             print(formset.errors)
-    # if a GET (or any other method) we'll create a blank form
+    # If it's a GET request (or any other), we'll create a blank form.
     else:
         if "data" in request.session:
             init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
             formset = InputFormSet(initial=init_data) 
         else:
             formset = InputFormSet()
-    #embed()
     context = {'formset': formset,'row': row, 'upload_form': upload_form}
     return  render(request, 'cell2.html', context)
 

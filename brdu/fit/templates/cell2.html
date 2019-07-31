@@ -32,7 +32,7 @@
                         <div class="col-md-auto">
                             <button type="button" class="btn btn-outline-info btn-sm" data-toggle="popover" data-placement="bottom" data-html="true"
                                 data-content="Rode, J., Goerke, T., Brusch, L., Rost, F. (2019). How fast are cells dividing: Probabilistic model of continuous labeling assays. <em>bioRxiv.</em> <a <a target='_blank' rel='noopener noreferrer' href='https://www.biorxiv.org/content/10.1101/550574v1'>doi:10.1101/550574</a>.">
-                                Cite us
+                                <span class="fas fa-feather-alt mr-2"></span>Cite us
                             </button>
                         </div>
                     </div>
@@ -147,6 +147,12 @@
                     $(this).html('<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Loading...').addClass('disabled');
                     //$(this).prop("disabled", true);
                 }
+            });
+
+            // Custom-file upload form: Change label to name of chosen file; https://stackoverflow.com/a/48942822/7192373
+            $('.custom-file-input').on('change', function() {
+                let fileName = $(this).val().split('\\').pop(); 
+                $(this).next('.custom-file-label').addClass("selected").html(fileName); 
             });
         </script>
     </body>
