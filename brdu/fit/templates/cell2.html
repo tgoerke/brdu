@@ -21,46 +21,56 @@
         <title>Cell Cycle Analyzer</title>
     </head>
     <body>
-        <div class="container" style="margin: .5rem;">
-            
-            <div class="row">
-                <div class="col-md-auto">
-                    <div class="row justify-content-start align-items-center">
-                        <div class="col-md-auto">
-                            <h2>Cell Cycle Analyzer</h2>
+        <div class="jumbotron jumbotron-fluid"> <!--https://getbootstrap.com/docs/4.1/components/jumbotron/-->
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-auto">
+                        <div class="row justify-content-start align-items-center">
+                            <div class="col-md-auto">
+                                <h1>Cell Cycle Analyzer</h1>
+                            </div>
+                            <div class="col-md-auto">
+                                <button type="button" class="btn btn-outline-info btn-sm" data-toggle="popover" data-placement="bottom" data-html="true"
+                                    data-content="Rode, J., Goerke, T., Brusch, L., Rost, F. (2019). How fast are cells dividing: Probabilistic model of continuous labeling assays. <em>bioRxiv.</em> <a <a target='_blank' rel='noopener noreferrer' href='https://www.biorxiv.org/content/10.1101/550574v1'>doi:10.1101/550574</a>.">
+                                    <span class="fas fa-feather-alt mr-2"></span>Cite us
+                                </button>
+                            </div>
                         </div>
-                        <div class="col-md-auto">
-                            <button type="button" class="btn btn-outline-info btn-sm" data-toggle="popover" data-placement="bottom" data-html="true"
-                                data-content="Rode, J., Goerke, T., Brusch, L., Rost, F. (2019). How fast are cells dividing: Probabilistic model of continuous labeling assays. <em>bioRxiv.</em> <a <a target='_blank' rel='noopener noreferrer' href='https://www.biorxiv.org/content/10.1101/550574v1'>doi:10.1101/550574</a>.">
-                                <span class="fas fa-feather-alt mr-2"></span>Cite us
-                            </button>
-                        </div>
+                        <p class="lead">Calculate cell cycle parameters from continuous labeling assays</p>
                     </div>
-                    <p class="lead">Calculate cell cycle parameters from continuous labeling assays</p>
-                </div>
-                <div class="col-md-auto">
-                    <a href="http://tu-dresden.de/die_tu_dresden/zentrale_einrichtungen/zih/"><img src="{% static "zihl.png" %}" height="55" vspace="10" /></a>
-                </div>
-                <div class="col-md-auto">
-                    <a href="http://tu-dresden.de/"><img src="{% static "TUD.png" %}" height="55" vspace="10" /></a>
+                    <div class="col-md-auto">
+                        <a href="http://tu-dresden.de/die_tu_dresden/zentrale_einrichtungen/zih/"><img src="{% static "zihl.png" %}" height="55" vspace="10" /></a>
+                    </div>
+                    <div class="col-md-auto">
+                        <a href="http://tu-dresden.de/"><img src="{% static "TUD.png" %}" height="55" vspace="10" /></a>
+                    </div>
                 </div>
             </div>
+        </div>
+
+        <div class="container">
         
             <div class="row">
-                <div class="col-md-auto">
-                    <h3 style="margin-top: .5rem;">Insert experimental data:</h3>
+                <div class="col-md-7">
+                    <div class="pb-2 mt-4 mb-3 border-bottom"> <!--https://stackoverflow.com/a/49708022/7192373-->
+                        <h2 style="margin-top: .5rem;">Insert experimental data:</h2>
+                    </div>
                     <!-- Form-->{% include "formset.html" %}
                 </div>
                 <div class="col-md-4">
-                    <h3 style="margin-top: .5rem;">Or upload CSV file:</h3>
+                    <div class="pb-2 mt-4 mb-3 border-bottom">
+                        <h2 style="margin-top: .5rem;">Or upload CSV file:</h2>
+                    </div>
                     <!-- Upload-->{% include "parts/upload_csv.html" %}
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-6">
-                    <h3 id="result">Result:</h3>
-                    <p class="lead">Unbiased parameter estimates from stochastic model</p>
+                    <div class="pb-2 mt-4 mb-2 border-bottom">
+                            <h2 id="result">Result</h2>
+                            <p class="lead">Unbiased parameter estimates from stochastic model</p>
+                    </div>
                     <!-- Results table-->{% include "parts/results_table.html" %} 
                     Results are rounded to the 6th decimal digit.
                 </div>
@@ -71,16 +81,23 @@
 
             <div class="row">
                 <div class="col-md-12">
-                    <h3>Help</h3>	
-                    <p> Our model is invariant for any time scale, so please enter all times in the same units (omitting this common unit).<br>
-                        The estimated parameters <math>&tau;</math>, <math><msub><mover> <mi>&sigma;</mi> <mo>^</mo></mover> c </msub> </math> and <math>&sigma;</math> are returned in that same time unit (parameters <math>f</math>, <math>g</math> are unit-free fractions). <br>
-                        Note the cell level variability <math><msub><mover> <mi>&sigma;</mi> <mo>^</mo></mover> c </msub> </math> is slightly different to the actual cell variability <math><msub><mi>&sigma;</mi> c </msub> </math>, see our publication for details. <br>
-                        All user data are only temporally stored on our server as long as they are needed for the parameter estimation. <br>
+                    <div class="pb-2 mt-4 mb-2 border-bottom">
+                        <h2 id="help">Help</h2>
+                    </div>
+                    <p> Our model is invariant for any time scale, so please enter all times in the same units (omitting this common unit).
+
+                        The estimated parameters <math>&tau;</math>, <math><msub><mover> <mi>&sigma;</mi> <mo>^</mo></mover> c </msub> </math> and <math>&sigma;</math> are returned in that same time unit (parameters <math>f</math>, <math>g</math> are unit-free fractions).
+
+                        Note the cell level variability <math><msub><mover> <mi>&sigma;</mi> <mo>^</mo></mover> c </msub> </math> is slightly different to the actual cell variability <math><msub><mi>&sigma;</mi> c </msub> </math>, see our publication for details.
+
+                        All user data are only temporally stored on our server as long as they are needed for the parameter estimation.
+                        
                         Empty lines in table will be tolerated.
                     </p>
-                    <p> If you used our tool please cite our publication: <a href="https://doi.org/10.1101/550574">Julian Rode, Torsten Goerke, Lutz Brusch and Fabian Rost (2019)<br> How fast are cells dividing: Probabilistic model of continuous labeling assays. bioRxiv doi:10.1101/550574</a> <br>
+                    <p> If you used our tool please cite our publication: <a href="https://doi.org/10.1101/550574">Julian Rode, Torsten Goerke, Lutz Brusch and Fabian Rost (2019). How fast are cells dividing: Probabilistic model of continuous labeling assays. bioRxiv doi:10.1101/550574</a> <br>
                         The web service uses our free and open source python tool: <a href="https://github.com/fabianrost84/clapy">https://github.com/fabianrost84/clapy</a>.</p>
-                    For questions or suggestion please write an email to <a href="mailto:julian.rode1@tu-dresden.de">julian.rode1@tu-dresden.de</a>. &emsp;  <a href="https://imc.zih.tu-dresden.de/imc/index.php?page=impressum">Impressum</a>
+                    <p>For questions or suggestion please write an email to <a href="mailto:julian.rode1@tu-dresden.de">julian.rode1@tu-dresden.de</a>.</p> 
+                    <p><a href="https://imc.zih.tu-dresden.de/imc/index.php?page=impressum">Impressum</a></p>
                     <br>&emsp; 
                 </div>
             </div>        
