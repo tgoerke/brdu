@@ -65,12 +65,12 @@
                 </div>
             </div>
 
+            <div class="pb-2 mt-4 mb-2 border-bottom">
+                <h2 id="result">Result</h2>
+            </div>
             <div class="row">
                 <div class="col-md-6">
-                    <div class="pb-2 mt-4 mb-2 border-bottom">
-                            <h2 id="result">Result</h2>
-                            <p class="lead">Unbiased parameter estimates from stochastic model</p>
-                    </div>
+                    <p class="lead">Unbiased parameter estimates from stochastic model</p>
                     <!-- Results table-->{% include "parts/results_table.html" %} 
                     Results are rounded to the 6th decimal digit.
                 </div>
@@ -79,11 +79,11 @@
                 </div>
             </div>
 
+            <div class="pb-2 mt-4 mb-2 border-bottom">
+                <h2 id="help">Help</h2>
+            </div>
             <div class="row">
                 <div class="col-md-12">
-                    <div class="pb-2 mt-4 mb-2 border-bottom">
-                        <h2 id="help">Help</h2>
-                    </div>
                     <p> Our model is invariant for any time scale, so please enter all times in the same units (omitting this common unit).
 
                         The estimated parameters <math>&tau;</math>, <math><msub><mover> <mi>&sigma;</mi> <mo>^</mo></mover> c </msub> </math> and <math>&sigma;</math> are returned in that same time unit (parameters <math>f</math>, <math>g</math> are unit-free fractions).
