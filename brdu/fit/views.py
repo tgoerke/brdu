@@ -4,7 +4,6 @@ from django.shortcuts import redirect
 from django.views import generic
 
 from .models import Data
-from .calc import calc
 
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -27,6 +26,10 @@ from django.conf import settings
 
 # Download
 from django.http import HttpResponse, Http404
+
+# Calculation
+from .calc import calc
+import timeit
 
 # Plot
 from .models import Assay
@@ -94,7 +97,11 @@ def form(request):
             formset = InputFormSet(initial=init_data)
             if run_calc:
                 if len(ncells) == len(datas) and len(datas) == len(times) and len(times)>0:
-                    results, plot = calc(ncells,times,datas)
+                    # Calculation
+                    start_time = timeit.default_timer() # Measure the time for calculation; https://docs.python.org/3.7/library/timeit.html
+                    results, plot = calc(ncells,times,datas) # Run calculation.
+                    run_time = timeit.default_timer() - start_time
+                    logger.debug('Calculation finished after {} s.'.format(run_time))
 
                     # Save plot in media folder; save corresponding database entry.
                     # https://docs.djangoproject.com/en/2.2/ref/files/file/#additional-methods-on-files-attached-to-objects

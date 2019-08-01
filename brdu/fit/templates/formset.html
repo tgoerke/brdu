@@ -6,14 +6,16 @@
 
     {% if formset.errors %}
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <strong>Something is wrong with your data.</strong> For details please check the highlighted fields below.
+            <h4 class="alert-heading">Something is wrong with your data</h4>
+            </strong> For details please check the highlighted fields below.
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
     {% elif assay %}
     <div class="alert alert-success alert-dismissible fade show" role="alert">
-        Calculation finished. You can find the result <a href="#result" class="alert-link">below</a>.
+        <h4 class="alert-heading">Calculation finished</h4>
+        You can find the result <a href="#result" class="alert-link">below</a>.
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>

@@ -29,6 +29,7 @@
 
 	{% if upload_form.errors %}
 		<div class="alert alert-danger alert-dismissible fade show" role="alert" style="display: table;"> <!-- https://getbootstrap.com/docs/4.3/components/alerts/#dismissing -->
+			<h4 class="alert-heading">Upload error</h4>
 			{% for error in upload_form.errors.values %}
 				{{ error.as_html_text }}
 			{% endfor %}
@@ -38,14 +39,16 @@
 		</div>
 	{% elif upload_form.is_valid %}
 		<div class="alert alert-success alert-dismissible fade show" role="alert" style="display: table;">
-			CSV file successfully uploaded. You can see, edit und submit your data for calculation <strong>on the left</strong>.
+			<h4 class="alert-heading">CSV file uploaded</h4>
+			You can see, edit und submit your data for calculation <strong>on the left</strong>.
 			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 				<span aria-hidden="true">&times;</span>
 			</button>
 		</div>
 	{% elif csv_inserted %}
 		<div class="alert alert-success alert-dismissible fade show" role="alert" style="display: table;">
-			Example data loaded. You can see, edit und submit the data for calculation <strong>on the left</strong>.
+			<h4 class="alert-heading">Example data loaded</h4>
+			You can see, edit und submit the data for calculation <strong>on the left</strong>.
 			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 				<span aria-hidden="true">&times;</span>
 			</button>
