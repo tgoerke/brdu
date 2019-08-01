@@ -217,7 +217,7 @@ def download(request):
                 row = len(init_data)
                 InputFormSet.min_num = row # Clear empty lines
 
-                context = {'row': row, 'formset': formset, 'upload_form': upload_form}
+                context = {'row': row, 'formset': formset, 'upload_form': upload_form, 'csv_inserted': True}
                 return render(request, 'cell2.html', context)
             else: # Non-existing file.
                 raise Http404
