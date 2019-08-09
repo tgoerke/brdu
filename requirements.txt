@@ -1,0 +1,13 @@
+Django
+django-cleanup
+django-crispy-forms
+django-widget-tweaks
+djangorestframework
+iminuit
+ipython
+matplotlib
+numpy
+pandas
+Pillow
+python-magic
+scipy
