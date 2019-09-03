@@ -74,3 +74,11 @@ Run the server:
     $ python manage.py runserver
 
 The Cell Cycle Analyzer can be found under: http://127.0.0.1:8000/
+
+## Deployment
+
+### Sessions
+
+Expired sessions should be [purged regularly](https://docs.djangoproject.com/en/2.2/topics/http/sessions/#clearing-the-session-store) (for example as a daily cron job) with:
+
+    $ python manage.py clearsessions
