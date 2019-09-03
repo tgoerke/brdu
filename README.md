@@ -48,7 +48,6 @@ If you are going to start the server for the first time or if the Django models 
 
 Furthermore all static files need to be copied to ```STATIC_ROOT```.
 
-    $ cd brdu
     $ python manage.py collectstatic
 
 ## Running Django
@@ -71,6 +70,7 @@ Please make sure, that you have installed the [dependencies](#install-dependenci
 
 Run the server:
 
+    $ cd brdu
     $ python manage.py runserver
 
 The Cell Cycle Analyzer can be found under: http://127.0.0.1:8000/
