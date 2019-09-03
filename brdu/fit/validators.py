@@ -1,11 +1,14 @@
 import magic
-from django.core.exceptions import ValidationError
 
 from .utils import unique_file_path
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 
 from django.utils.html import format_html, mark_safe
+
+# Validation
+from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 
 # Debugging
 from IPython import embed
@@ -17,6 +20,15 @@ CSV_TYPES = [
     'text/plain',
 ]
 
+def ValidateCsv(upload):
+    """
+    Undertakes a hierarchical series of subvalidations depending on
+    whether the previous validation was successfull.
+    """
+    FileExtensionValidator(['csv'])(upload) # This Django core validator is a callable.
+    ValidateFileType(upload)
+    ValidateCsvContent(upload)
+
 def ValidateFileType(upload, allowed_types=CSV_TYPES):
     """
     Checks file header with the libmagic file type identification library and
@@ -27,7 +39,7 @@ def ValidateFileType(upload, allowed_types=CSV_TYPES):
     # Get MIME type of file using python-magic
     #tmp_path = unique_file_path(instance=None, filename=upload.file.name)
     #default_storage.save(tmp_path, ContentFile(upload.file.read()))
-    upload.file.seek(0)
+    upload.file.seek(0) # Jump from possibly EOF to first line.
     file_type = magic.from_buffer(upload.file.read(1024), mime=True)
     #default_storage.delete(tmp_path)
 
@@ -36,7 +48,11 @@ def ValidateFileType(upload, allowed_types=CSV_TYPES):
         message = format_html('File type <code>{}</code> not supported.', file_type)
         raise ValidationError(message)
 
-def ValidateCsv(upload):
+def ValidateCsvContent(upload):
+    """
+    Tries to parse CSV file with pandas' read_csv function.
+    Returns detailed error messages for various problems with the data.
+    """
     upload.file.seek(0) # Jump from EOF to first line again.
     headers = ['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells']
     dtypes = {'measurement_time': 'float', 'number_of_labeled_cells': 'int', 'number_of_all_cells': 'int'}
@@ -82,5 +98,3 @@ def ValidateCsv(upload):
     except Exception as error:
         # All other errors
         message = format_html('Unexpected error: {}', type(error))
-
-    pass

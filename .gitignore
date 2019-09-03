@@ -7,3 +7,4 @@ brdu/media/*
 brdu-mint.code-workspace
 .vscode/settings.json
 brdu/fit/static/123.png
+brdu/db.sqlite3
