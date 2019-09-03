@@ -66,7 +66,7 @@ Load environment with
 
 ### Start server
 
-Please make sure, that you have installed the [dependencies](#install-dependencies) and the [database](#databse) as well as collected the [static files](#static-files).
+Please make sure, that you have installed the [dependencies](#install-dependencies) and the [database](#database) as well as collected the [static files](#static-files).
 
 Run the server:
 
