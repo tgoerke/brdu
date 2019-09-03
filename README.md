@@ -1,43 +1,75 @@
 # BrdU cell cycle tool
 
-Calculate cell cycle parameters from continuous labeling assays
-
-Load environment with
-```
-. envs && pipenv shell
-```
-
-Then run backend server
-```
-cd backend
-python manage.py runserver 0:8000
-```
-
-Or in one line
-```
-(cd backend && pipenv run python manage.py runserver 0:8000)
-```
+Calculate cell cycle parameters from continuous labeling assays.
 
 ## Installation
-Install requirement:
 
-```
-pipenv install --ignore-pipfile
-```
+Use one virtual environment of your choice. Exemplary installation using ```venv``` or ```pipenv``` is described below.
+
+### Install dependencies
+
+#### venv
+
+	$ python3 -m venv venv
+	$ source venv/bin/activate
+
+    $ pip install -r requirements.txt
+
+#### pipenv
+
+Install requirements:
+
+    $ pipenv install --ignore-pipfile
 
 Test run of fit code
-```
-python3 fit.py -i backend/fit/test.csv -o 123
-```
+
+    $ python3 fit.py -i brdu/fit/test.csv -o 123
 
 Install Django web framework
-```
-pip install django django-rest-framework
-```
-## Python 3.4
+
+    $ pip install django django-rest-framework
+
+#### Python 3.4
 
 To use older python 3.4 change the version string in the Pipfile
 and initialize pipenv with
-```
-. envs && pipenv --python /usr/bin/python3.4 shell
-```
+
+    $ . envs && pipenv --python /usr/bin/python3.4 shell
+
+### Database
+
+If you are going to start the server for the first time or if the Django models have changed, you need to generate the database file first.
+
+    $ cd brdu
+    $ python manage.py makemigrations
+    $ python manage.py migrate
+
+### Static files
+
+Furthermore all static files need to be copied to ```STATIC_ROOT```.
+
+    $ python manage.py collectstatic
+
+## Running Django
+
+### Load environment
+
+#### venv
+
+    $ source venv/bin/activate
+
+#### pipenv
+
+Load environment with
+
+    $ . envs && pipenv shell
+
+### Start server
+
+Please make sure, that you have installed the [dependencies](#install-dependencies) and the [database](#databse) as well as collected the [static files](#static-files).
+
+Run the server:
+
+    $ python manage.py runserver
+
+The Cell Cycle Analyzer can be found under: http://127.0.0.1:8000/
