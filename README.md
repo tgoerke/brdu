@@ -48,6 +48,7 @@ If you are going to start the server for the first time or if the Django models 
 
 Furthermore all static files need to be copied to ```STATIC_ROOT```.
 
+    $ cd brdu
     $ python manage.py collectstatic
 
 ## Running Django
