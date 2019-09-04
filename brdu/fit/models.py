@@ -77,3 +77,11 @@ class Assay(models.Model):
         return os.path.basename(self.plot.name)
 
     # https://stackoverflow.com/questions/5372934/how-do-i-get-django-admin-to-delete-files-when-i-remove-an-object-from-the-datab
+
+class SharedExperiment(Assay):
+    """
+    Holds permanently the cell cycle data for sharing with others.
+    """
+    date_shared = models.DateTimeField(auto_now_add=True)
+    share_id = models.CharField(max_length=255)
+    id_collision_count = models.IntegerField() # Counts collision until a unique id was found.

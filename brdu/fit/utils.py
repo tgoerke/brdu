@@ -6,6 +6,8 @@ from IPython import embed
 from django.forms.utils import ErrorList
 from django.utils.html import format_html_join
 
+import shortuuid
+
 def unique_file_path(instance, filename, subdir=''):
     """
     Generate a random file name, but keep file extension.
@@ -15,6 +17,14 @@ def unique_file_path(instance, filename, subdir=''):
     file_path = os.path.join(settings.MEDIA_ROOT, subdir, filename)
 
     return file_path
+
+def share_id():
+    """
+    Creates a unique id for sharing experiments.
+    """
+    uuid = shortuuid.uuid() # Generates 22 digit uuid.
+    short_uuid = uuid[:8] # Truncate to reasonable length.
+    return short_uuid
 
 class MyErrorList(ErrorList):
     """
