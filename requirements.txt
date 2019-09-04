@@ -5,6 +5,7 @@ django-widget-tweaks
 djangorestframework
 iminuit
 ipython
+jsonfield
 matplotlib
 numpy
 pandas

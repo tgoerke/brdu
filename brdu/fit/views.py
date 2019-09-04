@@ -84,27 +84,29 @@ def form(request):
         # check whether it's valid:
         if formset.is_valid():
             data_form = formset.cleaned_data
-            times=[];datas=[];ncells=[];
+            times = []
+            datas = []
+            ncells = []
             for i in data_form:
-                print( len(i),i)
+                print(len(i), i)
                 if len(i) == 3:
                         print("asdasdasdsa")
                         times.append(i['measurement_time'])
                         datas.append(i['number_of_labeled_cells'])
                         ncells.append(i['number_of_all_cells'])
-            #save data
+            # save data
             data = [i for i in zip(times,datas,ncells)]
             print(data)
             request.session["data"] = data
-            #hack to detelte data
+            # hack to delete data
             init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
             formset = InputFormSet(initial=init_data)
             if run_calc:
-                if len(ncells) == len(datas) and len(datas) == len(times) and len(times)>0:
+                if len(ncells) == len(datas) and len(datas) == len(times) and len(times) > 0:
                     # Calculation
                     start_time = timeit.default_timer() # Measure the time for calculation; https://docs.python.org/3.7/library/timeit.html
                     results, plot = calc(ncells,times,datas) # Run calculation.
-                    run_time = timeit.default_timer() - start_time
+                    run_time = round(timeit.default_timer() - start_time, 3)
                     logger.debug('Calculation finished after {} s.'.format(run_time))
 
                     # Get the 'Session' instance
@@ -113,21 +115,27 @@ def form(request):
                     session = get_object_or_404(Session, session_key=request.session.session_key) # Generate 'Session' instance from 'SessionStore' object.
                     # session = Session.objects.get(session_key=request.session.session_key) # get object, but exception will raised if not existing
 
-                    # Load old assay data
+                    # Try to load old assay instance
                     try:
                         assay = Assay.objects.get(session_id=session.session_key)
                     except Assay.DoesNotExist: # no assay data for this session yet
                         assay = Assay()
                         assay.session = session
 
-                    embed()
+                    # Save input and results
+                    assay.experimental_data = data
+                    assay.run_time = run_time
+                    assay.calculation_results = results
 
                     # Save plot in media folder; save corresponding database entry; https://docs.djangoproject.com/en/2.2/ref/files/file/#additional-methods-on-files-attached-to-objects
-                    # Link temporarily stored assay data to current session
-                    assay.plot.save('dummy.png', ContentFile(plot), save=False) # Filename doesn't matter, will be randomized anyway in course of this call.
-                    assay.save()
                     #plot_filename = os.path.basename(assay.plot.name) # only filename, not the whole path
-                    return render(request, 'cell2.html', {'formset': formset, 'fit': results, 'assay': assay, 'row': row, 'upload_form': upload_form})
+                    assay.plot.save('dummy.png', ContentFile(plot), save=False) # Filename doesn't matter, will be randomized anyway in course of this call.
+                    
+                    assay.save()
+
+                    context = {'formset': formset, 'fit': results, 'assay': assay, 'row': row, 'upload_form': upload_form}
+                    return render(request, 'cell2.html', context)
+
             if run_add:
                 url = '{:s}?rows={:d}'.format(reverse('fit:form'), row+10)
                 return redirect(url)
@@ -135,7 +143,8 @@ def form(request):
                 url = '{:s}?rows={:d}'.format(reverse('fit:form'), len(ncells))
                 return redirect(url)
 
-            return render(request, 'cell2.html', {'formset': formset, 'row': row, 'upload_form': upload_form})
+            context = {'formset': formset, 'row': row, 'upload_form': upload_form}
+            return render(request, 'cell2.html', context)
 
         else:
             print(formset)
@@ -147,6 +156,7 @@ def form(request):
             formset = InputFormSet(initial=init_data) 
         else:
             formset = InputFormSet()
+
     context = {'formset': formset,'row': row, 'upload_form': upload_form}
     return  render(request, 'cell2.html', context)
 

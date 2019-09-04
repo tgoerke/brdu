@@ -14,6 +14,9 @@ import os
 # Plot handling
 from django.contrib.sessions.models import Session
 
+# Calculation Results
+from jsonfield import JSONField
+
 # Debugging
 from IPython import embed
 
@@ -61,9 +64,13 @@ class Assay(models.Model):
         - generated plot
         - estimated values (not implemented yet)
     """
-    date_added = models.DateTimeField(auto_now_add=True)
-    plot = models.ImageField(upload_to=unique_file_path, max_length=255)
     session = models.ForeignKey(Session, default='tfzs3e7d6x13029nvi88p9z7rhwwurcq', on_delete=models.CASCADE) # assay data is bound to a session and will be deleted together on removal of the session
+    date_added = models.DateTimeField(auto_now_add=True) # Save date on creation of db entry.
+    date_calculated = models.DateTimeField(auto_now=True) # Save date on change of db entry.
+    experimental_data = JSONField(null=True)
+    run_time = models.FloatField(null=True)
+    calculation_results = JSONField(null=True) # https://stackoverflow.com/a/17970922/7192373
+    plot = models.ImageField(upload_to=unique_file_path, max_length=255)
 
     @property
     def filename(self):
