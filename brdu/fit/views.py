@@ -39,6 +39,10 @@ from django.contrib.sessions.models import Session
 from django.contrib.sessions.backends.db import SessionStore
 from django.shortcuts import get_object_or_404
 
+# Data storage (plots, CSV files)
+from datetime import datetime
+from .utils import unique_file_path
+
 # Debugging and logging
 from IPython import embed
 import logging
@@ -103,19 +107,24 @@ def form(request):
                     run_time = timeit.default_timer() - start_time
                     logger.debug('Calculation finished after {} s.'.format(run_time))
 
-                    # Save plot in media folder; save corresponding database entry.
-                    # https://docs.djangoproject.com/en/2.2/ref/files/file/#additional-methods-on-files-attached-to-objects
-                    assay = Assay()
-
                     # Get the 'Session' instance
                     if not request.session.session_key: # New client: no session saved for assignment to assay-Model yet.
                         request.session.save()
                     session = get_object_or_404(Session, session_key=request.session.session_key) # Generate 'Session' instance from 'SessionStore' object.
-                    # session = Session.objects.get(session_key=request.session.session_key)
+                    # session = Session.objects.get(session_key=request.session.session_key) # get object, but exception will raised if not existing
 
+                    # Load old assay data
+                    try:
+                        assay = Assay.objects.get(session_id=session.session_key)
+                    except Assay.DoesNotExist: # no assay data for this session yet
+                        assay = Assay()
+                        assay.session = session
+
+                    embed()
+
+                    # Save plot in media folder; save corresponding database entry; https://docs.djangoproject.com/en/2.2/ref/files/file/#additional-methods-on-files-attached-to-objects
                     # Link temporarily stored assay data to current session
-                    assay.session = session
-                    assay.plot.save('dummy.png', ContentFile(plot), save=False) # filename will be randomized anyway
+                    assay.plot.save('dummy.png', ContentFile(plot), save=False) # Filename doesn't matter, will be randomized anyway in course of this call.
                     assay.save()
                     #plot_filename = os.path.basename(assay.plot.name) # only filename, not the whole path
                     return render(request, 'cell2.html', {'formset': formset, 'fit': results, 'assay': assay, 'row': row, 'upload_form': upload_form})

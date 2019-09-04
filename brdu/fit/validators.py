@@ -24,6 +24,7 @@ def ValidateCsv(upload):
     """
     Undertakes a hierarchical series of subvalidations depending on
     whether the previous validation was successfull.
+    This avoids unnecessary validation steps like loading and parsing files that are not even of the right MIME type.
     """
     FileExtensionValidator(['csv'])(upload) # This Django core validator is a callable.
     ValidateFileType(upload)
