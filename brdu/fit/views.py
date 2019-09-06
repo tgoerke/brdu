@@ -160,6 +160,9 @@ def form(request):
     context = {'formset': formset,'row': row, 'upload_form': upload_form}
     return  render(request, 'cell2.html', context)
 
+def share(request):
+    pass
+
 def upload(request):
     row_query_string = request.GET.get('rows', '10') # Get query string (?row=...)
     try:
