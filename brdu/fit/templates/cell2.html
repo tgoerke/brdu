@@ -65,8 +65,9 @@
                 </div>
             </div>
 
-             <form action="{% url 'fit:share'%}?rows={{row}}" method="POST" id="id_share_form">
-             {% csrf_token %}
+            <form action="{% url 'fit:share'%}?rows={{row}}" method="POST" id="id_share_form">
+            {% csrf_token %}
+
             <div class="pb-2 mt-4 mb-2 border-bottom">
                 <div class="row justify-content-start align-items-center">
                      <div class="col-md-auto">
@@ -74,10 +75,17 @@
                     </div>
                     <div class="col-md-auto">
                         <!--https://getbootstrap.com/docs/4.3/components/dropdowns/#headers-->
-                        <button type="button" class="btn btn-link" data-toggle="popover" data-placement="bottom" data-html="true"
-                            data-content="You can <b>share your experiment results</b> with others. Click <a href='#' role='button' type='submit'>here</a> to create a sharing link for this particular calculation.">
-                            <span class="fas fa-link mr-2"></span>Share
-                        </button>
+                        <div class="dropdown">
+                            <button class="btn btn-link dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="fas fa-users mr-2"></span>Share
+                            </button>
+                            <div class="dropdown-menu p-4 text-muted" aria-labelledby="dropdownMenuButton" style="max-width: 200px;">
+                                <p>Create a sharing link for this particular calculation</p>
+                                <button class="btn btn-primary" type="submit">
+                                    <span class="fas fa-link mr-2"></span>Get link
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
