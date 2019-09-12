@@ -18,12 +18,12 @@ def unique_file_path(instance, filename, subdir=''):
 
     return file_path
 
-def share_id():
+def generate_share_id():
     """
     Creates a unique id for sharing experiments.
     """
     uuid = shortuuid.uuid() # Generates 22 digit uuid.
-    short_uuid = uuid[:8] # Truncate to reasonable length.
+    short_uuid = uuid[:5] # Truncate to reasonable length.
     return short_uuid
 
 class MyErrorList(ErrorList):

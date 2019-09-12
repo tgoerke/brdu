@@ -32,7 +32,6 @@ from .calc import calc
 import timeit
 
 # Plot
-from .models import Assay
 from django.core.files.base import ContentFile
 import os
 from django.contrib.sessions.models import Session
@@ -40,8 +39,14 @@ from django.contrib.sessions.backends.db import SessionStore
 from django.shortcuts import get_object_or_404
 
 # Data storage (plots, CSV files)
+from .models import Assay
 from datetime import datetime
 from .utils import unique_file_path
+
+# Data for sharing
+from .models import SharedExperiment
+from .utils import generate_share_id
+from django.db.utils import IntegrityError
 
 # Debugging and logging
 from IPython import embed
@@ -130,9 +135,29 @@ def form(request):
                     # Save plot in media folder; save corresponding database entry; https://docs.djangoproject.com/en/2.2/ref/files/file/#additional-methods-on-files-attached-to-objects
                     #plot_filename = os.path.basename(assay.plot.name) # only filename, not the whole path
                     assay.plot.save('dummy.png', ContentFile(plot), save=False) # Filename doesn't matter, will be randomized anyway in course of this call.
-                    
                     assay.save()
+                    
+                    # Prepare sharing
+                    shared_experiment = SharedExperiment()
+                    
+                    share_id_collisions = 0
+                    unique_id_found = False
+                    while unique_id_found == False:
+                        unique_id_found = True
+                        share_id = generate_share_id() # Generate share id for this calculation
+                        shared_experiment.share_id = share_id
+                        shared_experiment.id_collision_count = share_id_collisions
 
+                        try:
+                            shared_experiment.save()
+                        except IntegrityError as error: # duplicate share id generated
+                            if any('UNIQUE constraint failed' in str(s) for s in error.args):
+                                share_id_collisions += 1
+                                unique_id_found = False
+                                logger.warning('Share ID collision detected. ID: {:s}; Counter: {:d}'.format(share_id, share_id_collisions))
+                            else: # raise all other IntegrityErrors
+                                raise error
+                    
                     context = {'formset': formset, 'fit': results, 'assay': assay, 'row': row, 'upload_form': upload_form}
                     return render(request, 'cell2.html', context)
 
@@ -161,7 +186,11 @@ def form(request):
     return  render(request, 'cell2.html', context)
 
 def share(request):
-    pass
+    row_query_string = request.GET.get('rows', '10') # Get query string (?row=...)
+    try:
+        row = int(row_query_string)
+    except:
+        row = 10
 
 def upload(request):
     row_query_string = request.GET.get('rows', '10') # Get query string (?row=...)

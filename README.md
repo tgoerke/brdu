@@ -42,7 +42,7 @@ If you are going to start the server for the first time or if the Django models 
 
     $ cd brdu
     $ python manage.py makemigrations
-    $ python manage.py migrate
+    $ python manage.py migrate --run-syncdb
 
 ### Static files
 
