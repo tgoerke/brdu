@@ -65,11 +65,15 @@ class AbstractExperiment(models.Model):
         - SharedExperiment: linked to share id; permanent storage of data
     """
     date_added = models.DateTimeField(auto_now_add=True) # Save date on creation of db entry.
-    date_calculated = models.DateTimeField(auto_now=True) # Save date on change of db entry.
+    
     experimental_data = JSONField(null=True)
+    date_calculated = models.DateTimeField(auto_now=True) # Save date on change of db entry.
     run_time = models.FloatField(null=True)
     calculation_results = JSONField(null=True) # https://stackoverflow.com/a/17970922/7192373
     plot = models.ImageField(upload_to=unique_file_path, max_length=255)
+
+    share_id = models.CharField(max_length=255, unique=True, null=True) # https://docs.djangoproject.com/en/2.2/ref/models/fields/#null
+    id_collision_count = models.IntegerField(null=True) # Counts collision until a unique id was found.
 
     class Meta:
         abstract = True # denotes model as abstract for mixins/subclasses; http://charlesleifer.com/blog/django-patterns-model-inheritance/
@@ -88,10 +92,8 @@ class Assay(AbstractExperiment):
 
     # https://stackoverflow.com/questions/5372934/how-do-i-get-django-admin-to-delete-files-when-i-remove-an-object-from-the-datab
 
-class SharedExperiment(models.Model):
+class SharedExperiment(AbstractExperiment):
     """
     Holds permanently the cell cycle data for sharing with others.
     """
     date_shared = models.DateTimeField(auto_now_add=True)
-    share_id = models.CharField(max_length=255, unique=True, null=True) # https://docs.djangoproject.com/en/2.2/ref/models/fields/#null
-    id_collision_count = models.IntegerField(null=True) # Counts collision until a unique id was found.

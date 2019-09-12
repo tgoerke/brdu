@@ -49,11 +49,28 @@
         </div>
 
         <div class="container">
+            {% if share.new == True %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <h4 class="alert-heading">Sharing link created</h4>
+                    You can now share your experiment with others via this link: <a href="{{ share.id }}" class="alert-link">{{ share.id }}</a>.
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% elif share.new == False %}
+                <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+                    <h4 class="alert-heading">Shared experiment</h4>
+                    This is a shared experiment. Used <a href="#experimental-data" class="alert-link">input data</a> and calculated <a href="#result" class="alert-link">results</a> are displayed below. You can also <strong>modify the input</strong> and <strong>start your own calculations</strong> from here.
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
         
             <div class="row">
                 <div class="col-md-7">
                     <div class="pb-2 mt-4 mb-3 border-bottom"> <!--https://stackoverflow.com/a/49708022/7192373-->
-                        <h2 style="margin-top: .5rem;">Insert experimental data:</h2>
+                        <h2 id="experimental-data" style="margin-top: .5rem;">Insert experimental data:</h2>
                     </div>
                     <!-- Form-->{% include "formset.html" %}
                 </div>
@@ -65,27 +82,29 @@
                 </div>
             </div>
 
-            <form action="{% url 'fit:share'%}?rows={{row}}" method="POST" id="id_share_form">
-            {% csrf_token %}
-
             <div class="pb-2 mt-4 mb-2 border-bottom">
-                <div class="row justify-content-start align-items-center">
-                     <div class="col-md-auto">
+                <div class="row justify-content-start align-items-start">
+                    <div class="col-md-auto">
                         <h2 id="result">Result</h2>
                     </div>
                     <div class="col-md-auto">
-                        <!--https://getbootstrap.com/docs/4.3/components/dropdowns/#headers-->
-                        <div class="dropdown">
-                            <button class="btn btn-link dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="fas fa-users mr-2"></span>Share
-                            </button>
-                            <div class="dropdown-menu p-4 text-muted" aria-labelledby="dropdownMenuButton" style="max-width: 200px;">
-                                <p>Create a sharing link for this particular calculation</p>
-                                <button class="btn btn-primary" type="submit">
-                                    <span class="fas fa-link mr-2"></span>Get link
-                                </button>
-                            </div>
-                        </div>
+                        {% if fit %}
+                            <form class="form-inline" action="{% url 'fit:share' share_id %}?rows={{row}}" method="POST" id="id_share_form">
+                            {% csrf_token %}
+                                <!--https://getbootstrap.com/docs/4.3/components/dropdowns/#headers-->
+                                <div class="dropdown">
+                                    <button class="btn btn-link dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="fas fa-users mr-2"></span>Share
+                                    </button>
+                                    <div class="dropdown-menu p-4 text-muted" aria-labelledby="dropdownMenuButton" style="max-width: 200px;">
+                                        <p>Create a sharing link for this particular calculation</p>
+                                        <button class="btn btn-primary" type="submit">
+                                            <span class="fas fa-link mr-2"></span>Get link
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        {% endif %}
                     </div>
                 </div>
             </div>

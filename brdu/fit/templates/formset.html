@@ -3,7 +3,7 @@
 <form method="post" action="{% url 'fit:form' %}?rows={{row}}" id="id_formset" novalidate>
     {% csrf_token %}
     {{ formset.management_form }}
-
+    
     {% if formset.errors %}
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <h4 class="alert-heading">Something is wrong with your data</h4>

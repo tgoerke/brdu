@@ -47,6 +47,7 @@ from .utils import unique_file_path
 from .models import SharedExperiment
 from .utils import generate_share_id
 from django.db.utils import IntegrityError
+from django.core.exceptions import FieldError
 
 # Debugging and logging
 from IPython import embed
@@ -135,22 +136,19 @@ def form(request):
                     # Save plot in media folder; save corresponding database entry; https://docs.djangoproject.com/en/2.2/ref/files/file/#additional-methods-on-files-attached-to-objects
                     #plot_filename = os.path.basename(assay.plot.name) # only filename, not the whole path
                     assay.plot.save('dummy.png', ContentFile(plot), save=False) # Filename doesn't matter, will be randomized anyway in course of this call.
-                    assay.save()
                     
                     # Prepare sharing
-                    shared_experiment = SharedExperiment()
-                    
                     share_id_collisions = 0
                     unique_id_found = False
-                    while unique_id_found == False:
+                    while unique_id_found == False: # generate unique share id
                         unique_id_found = True
                         share_id = generate_share_id() # Generate share id for this calculation
-                        shared_experiment.share_id = share_id
-                        shared_experiment.id_collision_count = share_id_collisions
+                        assay.share_id = share_id
+                        assay.id_collision_count = share_id_collisions
 
                         try:
-                            shared_experiment.save()
-                        except IntegrityError as error: # duplicate share id generated
+                            assay.save()
+                        except IntegrityError as error: # duplicate share id detected
                             if any('UNIQUE constraint failed' in str(s) for s in error.args):
                                 share_id_collisions += 1
                                 unique_id_found = False
@@ -158,7 +156,7 @@ def form(request):
                             else: # raise all other IntegrityErrors
                                 raise error
                     
-                    context = {'formset': formset, 'fit': results, 'assay': assay, 'row': row, 'upload_form': upload_form}
+                    context = {'formset': formset, 'fit': results, 'assay': assay, 'row': row, 'upload_form': upload_form, 'share_id': share_id}
                     return render(request, 'cell2.html', context)
 
             if run_add:
@@ -185,12 +183,43 @@ def form(request):
     context = {'formset': formset,'row': row, 'upload_form': upload_form}
     return  render(request, 'cell2.html', context)
 
-def share(request):
+def share(request, share_id):
+    """
+    Loads shared experiment.
+    If a share id is queried for the first time, the experimental data
+    is copied to the sharing db table (from the session-based assay table)
+    for permanent storage.
+    """
     row_query_string = request.GET.get('rows', '10') # Get query string (?row=...)
     try:
         row = int(row_query_string)
     except:
         row = 10
+
+    share = {}
+    share['id'] = share_id
+
+    # Load shared experiment
+    try:
+        shared_experiment = SharedExperiment.objects.get(share_id=share_id) # == GET-Request
+        share['new'] = False
+    except (SharedExperiment.DoesNotExist, FieldError): # Sharing link is called for the first time; == POST-Request
+        experiment = get_object_or_404(Assay, share_id=share_id)
+        share['new'] = True
+
+        # Store experiment dataset in database permanently
+        shared_experiment = SharedExperiment()
+        shared_experiment.share_id = share_id
+
+        shared_experiment.save()
+
+    # Load data, plot, results
+    InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
+    formset = InputFormSet()
+    upload_form = UploadForm()
+
+    context = {'row': row, 'formset': formset, 'upload_form': upload_form, 'share': share}
+    return render(request, 'cell2.html', context)
 
 def upload(request):
     row_query_string = request.GET.get('rows', '10') # Get query string (?row=...)

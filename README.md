@@ -77,6 +77,14 @@ The Cell Cycle Analyzer can be found under: http://127.0.0.1:8000/
 
 ## Deployment
 
+### Disable debug mode
+
+Set [```DEBUG = False```](https://docs.djangoproject.com/en/2.2/ref/settings/#debug) in ```settings.py``` to disable the display of detailed traceback information, which could be a security risk.
+
+### Set allowed hosts
+
+[```ALLOWED_HOSTS```](https://docs.djangoproject.com/en/2.2/ref/settings/#std:setting-ALLOWED_HOSTS) must be set in ```settings.py```. Otherwise this will result in all requests being returned as *Bad Request (400)*.
+
 ### Sessions
 
 Expired sessions should be [purged regularly](https://docs.djangoproject.com/en/2.2/topics/http/sessions/#clearing-the-session-store) (for example as a daily cron job) with:
