@@ -79,7 +79,7 @@ The Cell Cycle Analyzer can be found under: http://127.0.0.1:8000/
 
 ### Disable debug mode
 
-Set [```DEBUG = False```](https://docs.djangoproject.com/en/2.2/ref/settings/#debug) in ```settings.py``` to disable the display of detailed traceback information, which could be a security risk.
+Set [```DEBUG = False```](https://docs.djangoproject.com/en/2.2/ref/settings/#debug) in ```settings.py``` to disable the display of detailed traceback information, which could pose a security risk.
 
 ### Set allowed hosts
 
