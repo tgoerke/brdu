@@ -24,7 +24,7 @@
 {#% crispy upload_form %#}
 {% load static %}
 
-<form action="{% url 'fit:upload'%}?rows={{row}}" method="POST" enctype="multipart/form-data" name="upload_form" id="id_upload_form">
+<form action="{% url 'fit:upload'%}" method="POST" enctype="multipart/form-data" name="upload_form" id="id_upload_form">
 	{% csrf_token %}
 
 	{% if upload_form.errors %}
