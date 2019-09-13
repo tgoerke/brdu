@@ -88,8 +88,8 @@
                         <h2 id="result">Result</h2>
                     </div>
                     <div class="col-md-auto">
-                        {% if fit %}
-                            <form class="form-inline" action="{% url 'fit:share' share_id %}?rows={{row}}" method="POST" id="id_share_form">
+                        {% if results and not share.shared %}
+                            <form class="form-inline" action="{% url 'fit:share' share.id %}?rows={{row}}" method="POST" id="id_share_form">
                             {% csrf_token %}
                                 <!--https://getbootstrap.com/docs/4.3/components/dropdowns/#headers-->
                                 <div class="dropdown">
@@ -147,7 +147,7 @@
 
         <!--
         <ul>
-            {% for name, result in fit.items %}
+            {% for name, result in results.items %}
             <li>{{name}} - {{result.value}} - {{result.2sigma}}</li>
             {% endfor %}
         </ul>
@@ -174,7 +174,7 @@
         </script>
 
         <!-- Jump to results after calculation. -->
-        {% if assay %}
+        {% if results and not share.shared %}
             <script>
                 window.location.hash="result"; // https://www.reddit.com/r/flask/comments/33rozw/af_is_it_possible_to_render_template_so_that_it/cqnt2r6/
             </script>

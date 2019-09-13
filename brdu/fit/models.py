@@ -96,4 +96,3 @@ class SharedExperiment(AbstractExperiment):
     """
     Holds permanently the cell cycle data for sharing with others.
     """
-    date_shared = models.DateTimeField(auto_now_add=True)

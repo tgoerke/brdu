@@ -136,14 +136,16 @@ def form(request):
                     # Save plot in media folder; save corresponding database entry; https://docs.djangoproject.com/en/2.2/ref/files/file/#additional-methods-on-files-attached-to-objects
                     #plot_filename = os.path.basename(assay.plot.name) # only filename, not the whole path
                     assay.plot.save('dummy.png', ContentFile(plot), save=False) # Filename doesn't matter, will be randomized anyway in course of this call.
-                    
+                    plot = {'filename': assay.filename}
+
                     # Prepare sharing
                     share_id_collisions = 0
                     unique_id_found = False
                     while unique_id_found == False: # generate unique share id
                         unique_id_found = True
-                        share_id = generate_share_id() # Generate share id for this calculation
-                        assay.share_id = share_id
+                        share = {}
+                        share['id'] = generate_share_id() # Generate share id for this calculation
+                        assay.share_id = share['id']
                         assay.id_collision_count = share_id_collisions
 
                         try:
@@ -156,7 +158,7 @@ def form(request):
                             else: # raise all other IntegrityErrors
                                 raise error
                     
-                    context = {'formset': formset, 'fit': results, 'assay': assay, 'row': row, 'upload_form': upload_form, 'share_id': share_id}
+                    context = {'formset': formset, 'results': results, 'plot': plot, 'row': row, 'upload_form': upload_form, 'share': share}
                     return render(request, 'cell2.html', context)
 
             if run_add:
@@ -197,6 +199,7 @@ def share(request, share_id):
         row = 10
 
     share = {}
+    share['shared'] = True # Flag to tell the template that it's loading a sharing site.
     share['id'] = share_id
 
     # Load shared experiment
@@ -210,15 +213,25 @@ def share(request, share_id):
         # Store experiment dataset in database permanently
         shared_experiment = SharedExperiment()
         shared_experiment.share_id = share_id
+        shared_experiment.id_collision_count = experiment.id_collision_count
+        shared_experiment.experimental_data = experiment.experimental_data
+        shared_experiment.date_calculated = experiment.date_calculated
+        shared_experiment.run_time = experiment.run_time
+        shared_experiment.calculation_results = experiment.calculation_results
+        shared_experiment.plot = experiment.plot
 
         shared_experiment.save()
 
     # Load data, plot, results
     InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
-    formset = InputFormSet()
+    init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in shared_experiment.experimental_data]
+    formset = InputFormSet(initial=init_data)
+
+    plot = {'filename': os.path.basename(shared_experiment.plot.name)}
+
     upload_form = UploadForm()
 
-    context = {'row': row, 'formset': formset, 'upload_form': upload_form, 'share': share}
+    context = {'row': row, 'formset': formset, 'upload_form': upload_form, 'share': share, 'results': shared_experiment.calculation_results, 'plot': plot}
     return render(request, 'cell2.html', context)
 
 def upload(request):

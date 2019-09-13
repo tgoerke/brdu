@@ -12,7 +12,7 @@
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-    {% elif assay %}
+    {% elif results and not share.shared %}
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         <h4 class="alert-heading">Calculation finished</h4>
         You can find the result <a href="#result" class="alert-link">below</a>.
