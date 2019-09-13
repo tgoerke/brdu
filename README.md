@@ -81,15 +81,15 @@ The Cell Cycle Analyzer can be found under: http://127.0.0.1:8000/
 
 Set [```DEBUG = False```](https://docs.djangoproject.com/en/2.2/ref/settings/#debug) in ```settings.py``` to disable the display of detailed traceback information, which could pose a security risk.
 
-### Set allowed hosts
+### Set ```ALLOWED_HOSTS```
 
-[```ALLOWED_HOSTS```](https://docs.djangoproject.com/en/2.2/ref/settings/#std:setting-ALLOWED_HOSTS) must be set in ```settings.py```. Otherwise this will result in all requests being returned as *Bad Request (400)*.
+[```ALLOWED_HOSTS```](https://docs.djangoproject.com/en/2.2/ref/settings/#std:setting-ALLOWED_HOSTS) must be set in ```settings.py``` according to your server. Otherwise this will result in all requests being returned as *Bad Request (400)*.
 
 ### Set a new ```SECRET_KEY```
 
 Change the [```SECRET_KEY```](https://docs.djangoproject.com/en/2.2/ref/settings/#secret-key) in ```settings.py``` to a unique, unpredictable value. Do not carry the key from development (for instance from this GitHub repository) over to the deployment server!
 
-Django creates an unique key automatically, when a [new project is started](https://docs.djangoproject.com/en/2.2/ref/django-admin/#django-admin-startproject).
+Django creates an unique key automatically when a [new project is started](https://docs.djangoproject.com/en/2.2/ref/django-admin/#django-admin-startproject).
 
     $ django-admin startproject myproject
 
