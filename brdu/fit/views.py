@@ -63,6 +63,11 @@ def form(request):
     except:
         row = 10
 
+    # Make sure, used row number is not less than the length of data rows
+    if 'data' in request.session:
+        if row < len(request.session['data']):
+            row = len(request.session['data'])
+
     InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
     upload_form = UploadForm()
     if request.method == 'POST':
@@ -100,13 +105,16 @@ def form(request):
                         times.append(i['measurement_time'])
                         datas.append(i['number_of_labeled_cells'])
                         ncells.append(i['number_of_all_cells'])
+            
             # save data
             data = [i for i in zip(times,datas,ncells)]
             print(data)
             request.session["data"] = data
+
             # hack to delete data
             init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
             formset = InputFormSet(initial=init_data)
+
             if run_calc:
                 if len(ncells) == len(datas) and len(datas) == len(times) and len(times) > 0:
                     # Calculation
@@ -182,7 +190,7 @@ def form(request):
         else:
             formset = InputFormSet()
 
-    context = {'formset': formset,'row': row, 'upload_form': upload_form}
+    context = {'formset': formset, 'row': row, 'upload_form': upload_form}
     return  render(request, 'cell2.html', context)
 
 def share(request, share_id):
