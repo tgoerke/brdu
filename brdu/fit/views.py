@@ -132,25 +132,36 @@ def form(request):
                     plot = {'filename': assay.filename}
 
                     # Prepare sharing
-                    share_id_collisions = 0
+                    share = {}
+                    experiment_id_collisions = 0
+                    shared_experiment_id_collisions = 0
                     unique_id_found = False
-                    while unique_id_found == False: # generate unique share id
-                        unique_id_found = True
-                        share = {}
-                        share['id'] = generate_share_id() # Generate share id for this calculation
+                    while not unique_id_found: # Generate unique share id for this calculation.
+                        share['id'] = generate_share_id()
+                        embed()
                         assay.share_id = share['id']
-                        assay.id_collision_count = share_id_collisions
+                        assay.experiment_id_collisions = experiment_id_collisions
+                        assay.shared_experiment_id_collisions = shared_experiment_id_collisions
 
-                        try:
-                            assay.save()
-                        except IntegrityError as error: # duplicate share id detected
-                            if any('UNIQUE constraint failed' in str(s) for s in error.args):
-                                share_id_collisions += 1
-                                unique_id_found = False
-                                logger.warning('Share ID collision detected. ID: {:s}; Counter: {:d}'.format(share_id, share_id_collisions))
-                            else: # raise all other IntegrityErrors
-                                raise error
-                    
+                        if not SharedExperiment.objects.filter(share_id=share['id']).exists(): # Check in sharing table for collisions; https://docs.djangoproject.com/en/3.0/ref/models/querysets/#exists
+                            """
+                            Collisions can occur in the Assay table with temporary
+                            stored results and preliminary share id or in the SharedExperiment
+                            table, where the permanently stored/shared results are.
+                            """
+                            try:
+                                assay.save()
+                                unique_id_found = True
+                            except IntegrityError as error: # Share id already exists in Assay table.
+                                if any('UNIQUE constraint failed' in str(s) for s in error.args):
+                                    shared_experiment_id_collisions += 1
+                                    logger.warning('Share ID collision detected in table Assay. ID: {:s}; Counter: {:d}'.format(share['id'], shared_experiment_id_collisions))
+                                else: # raise all other IntegrityErrors
+                                    raise error
+                        else: # Share id already exists in SharedExperiment table.
+                            experiment_id_collisions += 1
+                            logger.warning('Share ID collision detected in table SharedExperiment. ID: {:s}; Counter: {:d}'.format(share['id'], experiment_id_collisions))
+
                     context = {'formset': formset, 'results': results, 'plot': plot, 'row': rows, 'upload_form': upload_form, 'share': share}
                     return render(request, 'cell2.html', context)
 
@@ -203,7 +214,8 @@ def share(request, share_id):
         # Store experiment dataset in database permanently
         shared_experiment = SharedExperiment()
         shared_experiment.share_id = share_id
-        shared_experiment.id_collision_count = experiment.id_collision_count
+        shared_experiment.experiment_id_collisions = experiment.experiment_id_collisions
+        shared_experiment.shared_experiment_id_collisions = experiment.shared_experiment_id_collisions
         shared_experiment.experimental_data = experiment.experimental_data
         shared_experiment.date_calculated = experiment.date_calculated
         shared_experiment.run_time = experiment.run_time
