@@ -73,7 +73,8 @@ def form(request):
 
         #formset = InputFormSet(request.FILES)
         if 'clear' in request.POST:
-            request.session["data"] = []
+            request.session['data'] = []
+            request.session['rows'] = 10
             return redirect('fit:form')
 
         # check whether it's valid:
@@ -269,6 +270,7 @@ def upload(request):
     return render(request, 'cell2.html', context)
 
 def download(request):
+    # Handle query strings.
     filename = request.GET.get('file', '') # ?file=...
     destination = request.GET.get('destination', 'user') # &destination=...
 

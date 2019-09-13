@@ -52,7 +52,7 @@
             {% if share.new == True %}
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <h4 class="alert-heading">Sharing link created</h4>
-                    You can now share your experiment with others via this link: <a href="{{ share.id }}" class="alert-link">{{ share.id }}</a>.
+                    You can now share your experiment with other users via this link: <a href="{{ share.id }}" class="alert-link">{{ share.id }}</a>.
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -74,7 +74,7 @@
                     </div>
                     <!-- Form-->{% include "formset.html" %}
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-5">
                     <div class="pb-2 mt-4 mb-3 border-bottom">
                         <h2 style="margin-top: .5rem;">Or upload CSV file:</h2>
                     </div>
