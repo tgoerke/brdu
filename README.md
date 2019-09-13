@@ -85,6 +85,16 @@ Set [```DEBUG = False```](https://docs.djangoproject.com/en/2.2/ref/settings/#de
 
 [```ALLOWED_HOSTS```](https://docs.djangoproject.com/en/2.2/ref/settings/#std:setting-ALLOWED_HOSTS) must be set in ```settings.py```. Otherwise this will result in all requests being returned as *Bad Request (400)*.
 
+### Set a new ```SECRET_KEY```
+
+Change the [```SECRET_KEY```](https://docs.djangoproject.com/en/2.2/ref/settings/#secret-key) in ```settings.py``` to a unique, unpredictable value. Do not carry the key from development (for instance from this GitHub repository) over to the deployment server!
+
+Django creates an unique key automatically, when a [new project is started](https://docs.djangoproject.com/en/2.2/ref/django-admin/#django-admin-startproject).
+
+    $ django-admin startproject myproject
+
+So you can also use this as a generator for your server key.
+
 ### Sessions
 
 Expired sessions should be [purged regularly](https://docs.djangoproject.com/en/2.2/topics/http/sessions/#clearing-the-session-store) (for example as a daily cron job) with:

@@ -138,7 +138,6 @@ def form(request):
                     unique_id_found = False
                     while not unique_id_found: # Generate unique share id for this calculation.
                         share['id'] = generate_share_id()
-                        embed()
                         assay.share_id = share['id']
                         assay.experiment_id_collisions = experiment_id_collisions
                         assay.shared_experiment_id_collisions = shared_experiment_id_collisions
