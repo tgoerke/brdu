@@ -52,7 +52,23 @@
             {% if share.new == True %}
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <h4 class="alert-heading">Sharing link created</h4>
-                    You can now share your experiment with other users via this link: <a href="{{ share.id }}" class="alert-link">{{ share.id }}</a>.
+                    You can now share your experiment with other users via this link: <br />
+                    <!--div class="container"-->
+                        <div class="row justify-content-md-left">
+                            <div class="col-sm-5">
+                                <div class="input-group">
+                                    <input class="form-control" type="text" value="{{ request.get_host }}{{ request.get_full_path }}" id="copy-input" readonly><br />
+                                    <div class="input-group-append">
+                                        <button class="btn btn-secondary" type="button" id="copy-button" data-toggle="tooltip">
+                                                <span class="fas fa-copy mr-2"></span>Copy
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <!--/div-->
+                    <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="email@example.com"><br />
+                    <a href="{{ request.build_absolute_uri }}" class="alert-link">{{ request.get_host }}{{ request.get_full_path }}</a>.
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -215,5 +231,42 @@
                 $(this).next('.custom-file-label').addClass("selected").html(fileName); 
             });
         </script>
+
+        <!-- Copy to clipboard button -->
+        <script>
+            // http://davidzchen.com/tech/2016/01/19/bootstrap-copy-to-clipboard.html
+            $(document).ready(function() {
+                // Initialize the tooltip.
+                $('#copy-button').tooltip();
+
+                // When the copy button is clicked, select the value of the text box, attempt
+                // to execute the copy command, and trigger event to update tooltip message
+                // to indicate whether the text was successfully copied.
+                $('#copy-button').bind('click', function() {
+                    var input = document.querySelector('#copy-input');
+                    input.setSelectionRange(0, input.value.length + 1);
+                    try {
+                        var success = document.execCommand('copy');
+                        if (success) {
+                            $('#copy-button').trigger('copied', ['Copied!']);
+                        } else {
+                            $('#copy-button').trigger('copied', ['Copy with Ctrl-c']);
+                        }
+                    } catch (err) {
+                        $('#copy-button').trigger('copied', ['Copy with Ctrl-c']);
+                    }
+                });
+
+                // Handler for updating the tooltip message.
+                $('#copy-button').bind('copied', function(event, message) {
+                    $(this).attr('title', message)
+                        .tooltip('fixTitle')
+                        .tooltip('show')
+                        .attr('title', "Copy to Clipboard")
+                        .tooltip('fixTitle');
+                });
+            });
+        </script>
+
     </body>
 </html>
