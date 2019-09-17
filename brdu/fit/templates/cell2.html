@@ -54,24 +54,21 @@
                     <h4 class="alert-heading">Sharing link created</h4>
                     You can now share your experiment with other users via this link: <br />
                     <!--div class="container"-->
+                    <p>
                         <div class="row justify-content-md-left">
                             <div class="col-sm-5">
                                 <div class="input-group">
                                     <input class="form-control" type="text" value="{{ request.get_host }}{{ request.get_full_path }}" id="copy-input" readonly><br />
                                     <div class="input-group-append">
-                                        <button class="btn btn-secondary" type="button" id="copy-button" data-toggle="tooltip">
+                                        <button class="btn btn-secondary" id="copy-button" title="Copy to clipboard" data-placement="bottom" data-toggle="tooltip" data-clipboard-text="{{ request.build_absolute_uri }}">
                                                 <span class="fas fa-copy mr-2"></span>Copy
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </p>
                     <!--/div-->
-                    <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="email@example.com"><br />
-                    <a href="{{ request.build_absolute_uri }}" class="alert-link">{{ request.get_host }}{{ request.get_full_path }}</a>.
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
             {% elif share.new == False %}
                 <div class="alert alert-info alert-dismissible fade show" role="alert">
@@ -232,38 +229,49 @@
             });
         </script>
 
-        <!-- Copy to clipboard button -->
+        <!-- Copy to clipboard button; https://codepen.io/nathanlong/pen/ZpAmjv -->
         <script>
-            // http://davidzchen.com/tech/2016/01/19/bootstrap-copy-to-clipboard.html
-            $(document).ready(function() {
-                // Initialize the tooltip.
-                $('#copy-button').tooltip();
+            // Attempts to use .execCommand('copy') on a created text field
+            // Falls back to a selectable alert if not supported
+            // Attempts to display status in Bootstrap tooltip
 
-                // When the copy button is clicked, select the value of the text box, attempt
-                // to execute the copy command, and trigger event to update tooltip message
-                // to indicate whether the text was successfully copied.
-                $('#copy-button').bind('click', function() {
-                    var input = document.querySelector('#copy-input');
-                    input.setSelectionRange(0, input.value.length + 1);
-                    try {
-                        var success = document.execCommand('copy');
-                        if (success) {
-                            $('#copy-button').trigger('copied', ['Copied!']);
-                        } else {
-                            $('#copy-button').trigger('copied', ['Copy with Ctrl-c']);
-                        }
-                    } catch (err) {
-                        $('#copy-button').trigger('copied', ['Copy with Ctrl-c']);
-                    }
+            function copyToClipboard(text, el) {
+            var copyTest = document.queryCommandSupported('copy');
+            var elOriginalText = el.attr('data-original-title');
+
+            if (copyTest === true) {
+                var copyTextArea = document.createElement("textarea");
+                copyTextArea.value = text;
+                document.body.appendChild(copyTextArea);
+                copyTextArea.select();
+                try {
+                    var successful = document.execCommand('copy');
+                    var msg = successful ? 'Copied!' : 'Copy with Ctrl-c or cmd-c';
+                    el.attr('data-original-title', msg).tooltip('show');
+                } catch (err) {
+                    console.log('Unable to copy');
+                }
+                document.body.removeChild(copyTextArea);
+                el.attr('data-original-title', elOriginalText);
+            } else {
+                // Fallback if browser doesn't support .execCommand('copy')
+                window.prompt("Copy with Ctrl-c or cmd-c", text);
+            }
+            }
+
+            $(document).ready(function() {
+
+                // Select link text with a single click; https://stackoverflow.com/a/21967694/7192373
+                $("#copy-input").focus(function(){
+                    this.select();
                 });
 
-                // Handler for updating the tooltip message.
-                $('#copy-button').bind('copied', function(event, message) {
-                    $(this).attr('title', message)
-                        .tooltip('fixTitle')
-                        .tooltip('show')
-                        .attr('title', "Copy to Clipboard")
-                        .tooltip('fixTitle');
+                // Copy to clipboard with button
+                
+                $('#copy-button').click(function() {
+                    var text = $(this).attr('data-clipboard-text'); // Grab any text in the attribute 'data-clipboard-text' and pass it to the copy function.
+                    var el = $(this);
+                    copyToClipboard(text, el);
                 });
             });
         </script>
