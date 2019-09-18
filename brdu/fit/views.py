@@ -202,11 +202,12 @@ def share(request, share_id):
     share['id'] = share_id
 
     # Load shared experiment
-    try:
+    if SharedExperiment.objects.filter(share_id=share_id).exists():
         shared_experiment = SharedExperiment.objects.get(share_id=share_id) # == GET-Request
         share['new'] = False
-        shared_experiment.save() # Resave DB entry in order to update "date_last_visited"
-    except (SharedExperiment.DoesNotExist, FieldError): # Sharing link is called for the first time; == POST-Request
+        shared_experiment.visits += 1
+    #except (SharedExperiment.DoesNotExist, FieldError): # Sharing link is called for the first time; == POST-Request
+    else:
         experiment = get_object_or_404(Assay, share_id=share_id)
         share['new'] = True
 
@@ -220,7 +221,7 @@ def share(request, share_id):
         shared_experiment.calculation_results = experiment.calculation_results
         shared_experiment.plot.save('shared/filename.png', content=experiment.plot.file, save=False)
 
-        shared_experiment.save()
+    shared_experiment.save() # Resave DB entry in order to update "date_last_visited"
 
     # Load data, plot, results
     InputFormSet = formset_factory(InputForm, extra=0, can_delete=False, validate_min=False)

@@ -66,6 +66,7 @@ class AbstractExperiment(models.Model):
     """
     date_added = models.DateTimeField(auto_now_add=True) # Save date on creation of db entry.
     date_last_visited = models.DateTimeField(auto_now=True) # Save date on every change of db entry.
+    visits = models.IntegerField(default=0) # Counter for visits.
 
     share_id = models.CharField(max_length=255, unique=True, null=True) # https://docs.djangoproject.com/en/2.2/ref/models/fields/#null
     run_time = models.FloatField(null=True)
