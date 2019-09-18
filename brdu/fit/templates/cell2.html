@@ -85,43 +85,54 @@
         
             <div class="row">
                 <div class="col-md-7">
-                    <div class="pb-2 mt-4 mb-3 border-bottom"> <!--https://stackoverflow.com/a/49708022/7192373-->
+                    <div class="pb-0 mt-4 mb-3 border-bottom"> <!--https://stackoverflow.com/a/49708022/7192373-->
                         <h2 id="experimental-data" style="margin-top: .5rem;">Insert experimental data:</h2>
                     </div>
                     <!-- Form-->{% include "formset.html" %}
                 </div>
                 <div class="col-md-5">
-                    <div class="pb-2 mt-4 mb-3 border-bottom">
+                    <div class="pb-0 mt-4 mb-3 border-bottom">
                         <h2 style="margin-top: .5rem;">Or upload CSV file:</h2>
                     </div>
                     <!-- Upload-->{% include "parts/upload_csv.html" %}
                 </div>
             </div>
 
-            <div class="pb-2 mt-4 mb-2 border-bottom">
+            <div class="pb-0 mt-4 mb-2 border-bottom">
                 <div class="row justify-content-start align-items-start">
-                    <div class="col-md-auto">
-                        <h2 id="result">Result</h2>
-                    </div>
-                    <div class="col-md-auto">
-                        {% if results and not share.shared %}
-                            <form class="form-inline" action="{% url 'fit:share' share.id %}" method="POST" id="id_share_form">
-                            {% csrf_token %}
+                    {% if results and not share.shared %}
+                        <form class="form-inline" action="{% url 'fit:share' share.id %}" method="POST" id="id_share_form">
+                        {% csrf_token %}
+                    {% endif %}
+                        <div class="col-md-auto">
+                            <h2 id="result">Result</h2>
+                        </div>
+                        
+                            <div class="col-md-auto">
                                 <!--https://getbootstrap.com/docs/4.3/components/dropdowns/#headers-->
                                 <div class="dropdown">
+                                {% if results and not share.shared %}
                                     <button class="btn btn-link dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {% else %}
+                                <span style="display: inline-block;" data-toggle="tooltip" data-placement="right" title="To share your result, please start a calculation first."> <!-- https://github.com/twbs/bootstrap/pull/10081 -->
+                                    <button class="btn btn-link" type="button" id="dropdownMenuButton" disabled>
+                                </span>
+                                {% endif %}
                                         <span class="fas fa-users mr-2"></span>Share
                                     </button>
-                                    <div class="dropdown-menu p-4 text-muted" aria-labelledby="dropdownMenuButton" style="max-width: 200px;">
-                                        <p>Create a sharing link for this particular calculation</p>
-                                        <button class="btn btn-primary" type="submit">
-                                            <span class="fas fa-link mr-2"></span>Get link
-                                        </button>
-                                    </div>
+                                    {% if results and not share.shared %}
+                                        <div class="dropdown-menu p-4 text-muted" aria-labelledby="dropdownMenuButton" style="max-width: 200px;">
+                                            <p>Create a sharing link for this particular calculation</p>
+                                            <button class="btn btn-primary" type="submit">
+                                                <span class="fas fa-link mr-2"></span>Get link
+                                            </button>
+                                        </div>
+                                    {% endif %}
                                 </div>
-                            </form>
-                        {% endif %}
-                    </div>
+                            </div> 
+                    {% if results and not share.shared %}
+                        </form>
+                    {% endif %}
                 </div>
             </div>
             
@@ -136,7 +147,7 @@
                 </div>
             </div>
 
-            <div class="pb-2 mt-4 mb-2 border-bottom">
+            <div class="pb-0 mt-4 mb-2 border-bottom">
                 <h2 id="help">Help</h2>
             </div>
             <div class="row">

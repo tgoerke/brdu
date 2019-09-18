@@ -86,10 +86,9 @@ def form(request):
             for i in data_form:
                 print(len(i), i)
                 if len(i) == 3:
-                        print("asdasdasdsa")
-                        times.append(i['measurement_time'])
-                        datas.append(i['number_of_labeled_cells'])
-                        ncells.append(i['number_of_all_cells'])
+                    times.append(i['measurement_time'])
+                    datas.append(i['number_of_labeled_cells'])
+                    ncells.append(i['number_of_all_cells'])
             
             # save data
             data = [i for i in zip(times,datas,ncells)]
