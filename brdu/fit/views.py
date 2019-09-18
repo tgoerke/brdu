@@ -205,6 +205,7 @@ def share(request, share_id):
     try:
         shared_experiment = SharedExperiment.objects.get(share_id=share_id) # == GET-Request
         share['new'] = False
+        shared_experiment.save() # Resave DB entry in order to update "date_last_visited"
     except (SharedExperiment.DoesNotExist, FieldError): # Sharing link is called for the first time; == POST-Request
         experiment = get_object_or_404(Assay, share_id=share_id)
         share['new'] = True
@@ -215,7 +216,6 @@ def share(request, share_id):
         shared_experiment.experiment_id_collisions = experiment.experiment_id_collisions
         shared_experiment.shared_experiment_id_collisions = experiment.shared_experiment_id_collisions
         shared_experiment.experimental_data = experiment.experimental_data
-        shared_experiment.date_calculated = experiment.date_calculated
         shared_experiment.run_time = experiment.run_time
         shared_experiment.calculation_results = experiment.calculation_results
         shared_experiment.plot = experiment.plot

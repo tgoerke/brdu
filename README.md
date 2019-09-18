@@ -41,7 +41,7 @@ and initialize pipenv with
 If you are going to start the server for the first time or if the Django models have changed, you need to generate the database file first.
 
     $ cd brdu
-    $ python manage.py makemigrations
+    $ python manage.py makemigrations fit
     $ python manage.py migrate --run-syncdb
 
 ### Static files

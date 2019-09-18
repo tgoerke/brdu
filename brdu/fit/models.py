@@ -65,13 +65,13 @@ class AbstractExperiment(models.Model):
         - SharedExperiment: linked to share id; permanent storage of data
     """
     date_added = models.DateTimeField(auto_now_add=True) # Save date on creation of db entry.
-    
+    date_last_visited = models.DateTimeField(auto_now=True) # Save date on every change of db entry.
+
     share_id = models.CharField(max_length=255, unique=True, null=True) # https://docs.djangoproject.com/en/2.2/ref/models/fields/#null
+    run_time = models.FloatField(null=True)
     experiment_id_collisions = models.IntegerField(null=True) # Counts collisions in Assay table until a unique id was found.
     shared_experiment_id_collisions = models.IntegerField(null=True) # Counts collision in SharedExperiment table until a unique id was found.
 
-    date_calculated = models.DateTimeField(auto_now=True) # Save date on change of db entry.
-    run_time = models.FloatField(null=True)
     experimental_data = JSONField(null=True)
     calculation_results = JSONField(null=True) # https://stackoverflow.com/a/17970922/7192373
     plot = models.ImageField(upload_to=unique_file_path, max_length=255)
