@@ -30,7 +30,7 @@
                     <thead>
                     <tr>
                         {% for field in form.visible_fields %}
-                            <th scope="col">{{ field.label|capfirst }}</th>
+                            <th class="text-right" scope="col">{{ field.label|capfirst }}</th>
                         {% endfor %}
                     </tr>
                     </thead>
@@ -38,8 +38,13 @@
 
                 <tr>
                     {% for field in form.visible_fields %}
-
-                        <td >
+                        <td>
+                        {% if forloop.first %}
+                            <div class="input-group">
+                                <div class="input-group-prepend text-center" style="min-width: 5.2ex;">
+                                    <span class="input-group-text" id="inputGroupPrepend">{{ forloop.parentloop.counter }}</span>
+                                </div>
+                        {% endif %}
                             {# Include the hidden fields in the form #}
                             {% if forloop.first %}
                                 {% for hidden in form.hidden_fields %}
@@ -64,10 +69,12 @@
                                     {% render_field field class="form-control" %}
                                 {% endif %}
                             {% else %}
-                                {% render_field field class="form-control" %}
+                                {% render_field field class="form-control text-right" %}
                             {% endif %}
                         </td>
-
+                    {% if forloop.first %}
+                        </div>
+                    {% endif %}
                     {% endfor %}
                 </tr>
 
