@@ -101,7 +101,7 @@
             <div class="pb-0 mt-4 mb-2 border-bottom">
                 <div class="row justify-content-start align-items-start">
                     {% if results and not share.shared %}
-                        <form class="form-inline" action="{% url 'fit:share' share.id %}" method="POST" id="id_share_form">
+                        <form class="form-inline p-0 m-0" action="{% url 'fit:share' share.id %}" method="POST" id="id_share_form">
                         {% csrf_token %}
                     {% endif %}
                         <div class="col-md-auto">
