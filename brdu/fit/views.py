@@ -128,7 +128,7 @@ def form(request):
                     # Save plot in media folder; save corresponding database entry; https://docs.djangoproject.com/en/2.2/ref/files/file/#additional-methods-on-files-attached-to-objects
                     #plot_filename = os.path.basename(assay.plot.name) # only filename, not the whole path
                     assay.plot.save('dummy.png', ContentFile(plot), save=False) # Filename doesn't matter, will be randomized anyway in course of this call.
-                    plot = {'filename': assay.filename}
+                    plot = {'filepath_relative': assay.filename}
 
                     # Prepare sharing
                     share = {}
@@ -218,7 +218,7 @@ def share(request, share_id):
         shared_experiment.experimental_data = experiment.experimental_data
         shared_experiment.run_time = experiment.run_time
         shared_experiment.calculation_results = experiment.calculation_results
-        shared_experiment.plot = experiment.plot
+        shared_experiment.plot.save('shared/filename.png', content=experiment.plot.file, save=False)
 
         shared_experiment.save()
 
@@ -227,7 +227,10 @@ def share(request, share_id):
     init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in shared_experiment.experimental_data]
     formset = InputFormSet(initial=init_data)
 
-    plot = {'filename': os.path.basename(shared_experiment.plot.name)}
+    filepath_absolute = shared_experiment.plot.name
+    filepath_relative = filepath_absolute.replace(settings.MEDIA_ROOT + '/', '') 
+    #plot = {'filename': os.path.basename(shared_experiment.plot.name)}
+    plot = {'filepath_relative': filepath_relative}
 
     upload_form = UploadForm()
 
