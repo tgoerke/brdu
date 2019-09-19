@@ -85,7 +85,7 @@ def form(request):
             ncells = []
             for i in data_form:
                 print(len(i), i)
-                if len(i) == 3:
+                if len(i) == 3: # Skip empty lines.
                     times.append(i['measurement_time'])
                     datas.append(i['number_of_labeled_cells'])
                     ncells.append(i['number_of_all_cells'])
@@ -171,7 +171,6 @@ def form(request):
                 rows = len(ncells)
                 request.session['rows'] = rows
                 return redirect('fit:form')
-
             context = {'formset': formset, 'row': rows, 'upload_form': upload_form}
             return render(request, 'cell2.html', context)
 

@@ -11,7 +11,9 @@
         <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">-->
 
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        
+        <!--link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous"-->
+
+
         <!-- My CSS -->
         <link rel="stylesheet" href="{% static 'css/fit.css' %}">
 
@@ -217,10 +219,18 @@
                     //$(this).prop("disabled", true); // disable button
                 //}
                 $('#btn-calc').html('<span class="spinner-grow spinner-grow-sm mr-2" role="status" aria-hidden="true"></span>Calculating...').addClass('disabled');
-            
+
+                $(this).submit();
+
                 // Disable input form
-                
+                // $('#fieldset').prop('disabled', true);
             });
+
+            //$('#id_formset').one('submit', function() {
+                //$(this).submit();
+                //$(this).find('button[type="submit"]').attr('disabled', true);
+                //$('#btn-calc').attr('disabled', true);
+            //});
        
             $('#btn-upload2').click(function() { // https://mdbootstrap.com/docs/jquery/components/spinners/#buttons
                 var field = document.forms["upload_form"]["file"].value;
