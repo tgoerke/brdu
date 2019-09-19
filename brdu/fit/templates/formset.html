@@ -29,8 +29,9 @@
                 {% if forloop.first %}
                     <thead>
                     <tr>
+                        <th class="text-center" scope="col"></th>
                         {% for field in form.visible_fields %}
-                            <th class="text-right" scope="col">{{ field.label|capfirst }}</th>
+                            <th class="text-center" scope="col">{{ field.label|capfirst }}</th>
                         {% endfor %}
                     </tr>
                     </thead>
@@ -40,10 +41,12 @@
                     {% for field in form.visible_fields %}
                         <td>
                         {% if forloop.first %}
-                            <div class="input-group">
-                                <div class="input-group-prepend text-center" style="min-width: 5.2ex;">
-                                    <span class="input-group-text m-0" id="inputGroupPrepend" style="width: 100%; justify-content: center;">{{ forloop.parentloop.counter }}</span>
+                            <!--div class="input-group"-->
+                                <div class="input-group-prepend" style="min-width: 5.2ex;">
+                                    <span class="input-group-text" id="inputGroupPrepend" style="width: 100%; justify-content: center;">{{ forloop.parentloop.counter }}</span>
                                 </div>
+                        </td>
+                        <td>
                         {% endif %}
                             {# Include the hidden fields in the form #}
                             {% if forloop.first %}
@@ -54,7 +57,7 @@
 
                             {% if form.is_bound %}
                                 {% if field.errors %}
-                                    {% render_field field class="form-control is-invalid" data-toggle="tooltip" data-html="true" title=field.errors.as_html_text %}
+                                    {% render_field field class="form-control is-invalid text-right" data-toggle="tooltip" data-html="true" title=field.errors.as_html_text %}
 
                                     {% comment %}
                                         {% for error in field.errors %}
@@ -66,15 +69,15 @@
 
                                 {% else %}
                                     {#% render_field field class="form-control is-valid" %#}
-                                    {% render_field field class="form-control" %}
+                                    {% render_field field class="form-control text-right" %}
                                 {% endif %}
                             {% else %}
                                 {% render_field field class="form-control text-right" %}
                             {% endif %}
+                        {% if forloop.first %}
+                            <!--/div-->
+                        {% endif %}
                         </td>
-                    {% if forloop.first %}
-                        </div>
-                    {% endif %}
                     {% endfor %}
                 </tr>
 
