@@ -125,9 +125,11 @@
                                     {% if results and not share.shared %}
                                         <div class="dropdown-menu p-4 text-muted" aria-labelledby="dropdownMenuButton" style="max-width: 200px;">
                                             <p>Create a sharing link for this particular calculation</p>
-                                            <button class="btn btn-primary" type="submit">
-                                                <span class="fas fa-link mr-2"></span>Get link
-                                            </button>
+                                            <div class="text-left">
+                                                <button class="btn btn-primary" type="submit">
+                                                    <span class="fas fa-link mr-2"></span>Get link
+                                                </button>
+                                            </div>
                                         </div>
                                     {% endif %}
                                 </div>
@@ -220,7 +222,7 @@
                 //}
                 $('#btn-calc').html('<span class="spinner-grow spinner-grow-sm mr-2" role="status" aria-hidden="true"></span>Calculating...').addClass('disabled');
 
-                $(this).submit();
+                //$('#id_formset').submit();
 
                 // Disable input form
                 // $('#fieldset').prop('disabled', true);
