@@ -11,7 +11,9 @@
         <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">-->
 
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        
+        <!--link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous"-->
+
+
         <!-- My CSS -->
         <link rel="stylesheet" href="{% static 'css/fit.css' %}">
 
@@ -49,25 +51,95 @@
         </div>
 
         <div class="container">
+            {% if share.new == True %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <h4 class="alert-heading">Sharing link created</h4>
+                    You can now share your experiment with other users via this link: <br />
+                    <!--div class="container"-->
+                    <p>
+                        <div class="row justify-content-md-left">
+                            <div class="col-sm-5">
+                                <div class="input-group">
+                                    <input class="form-control" type="text" value="{{ request.get_host }}{{ request.get_full_path }}" id="copy-input" readonly><br />
+                                    <div class="input-group-append">
+                                        <button class="btn btn-secondary" id="copy-button" title="Copy to clipboard" data-placement="bottom" data-toggle="tooltip" data-clipboard-text="{{ request.build_absolute_uri }}">
+                                                <span class="fas fa-copy mr-2"></span>Copy
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </p>
+                    <!--/div-->
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% elif share.new == False %}
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <h4 class="alert-heading">Shared experiment</h4>
+                    This is a shared experiment. Used <a href="#experimental-data" class="alert-link">input data</a> and calculated <a href="#result" class="alert-link">results</a> are displayed below. You can also <strong>modify the input</strong> and <strong>start your own calculations</strong> from here.
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
         
             <div class="row">
                 <div class="col-md-7">
-                    <div class="pb-2 mt-4 mb-3 border-bottom"> <!--https://stackoverflow.com/a/49708022/7192373-->
-                        <h2 style="margin-top: .5rem;">Insert experimental data:</h2>
+                    <div class="pb-0 mt-4 mb-3 border-bottom"> <!--https://stackoverflow.com/a/49708022/7192373-->
+                        <h2 id="experimental-data" style="margin-top: .5rem;">Insert experimental data:</h2>
                     </div>
                     <!-- Form-->{% include "formset.html" %}
                 </div>
-                <div class="col-md-4">
-                    <div class="pb-2 mt-4 mb-3 border-bottom">
+                <div class="col-md-5">
+                    <div class="pb-0 mt-4 mb-3 border-bottom">
                         <h2 style="margin-top: .5rem;">Or upload CSV file:</h2>
                     </div>
                     <!-- Upload-->{% include "parts/upload_csv.html" %}
                 </div>
             </div>
 
-            <div class="pb-2 mt-4 mb-2 border-bottom">
-                <h2 id="result">Result</h2>
+            <div class="pb-0 mt-4 mb-2 border-bottom">
+                <div class="row justify-content-start align-items-start">
+                    {% if results and not share.shared %}
+                        <form class="form-inline p-0 m-0" action="{% url 'fit:share' share.id %}" method="POST" id="id_share_form">
+                        {% csrf_token %}
+                    {% endif %}
+                        <div class="col-md-auto">
+                            <h2 id="result">Result</h2>
+                        </div>
+                        
+                            <div class="col-md-auto">
+                                <!--https://getbootstrap.com/docs/4.3/components/dropdowns/#headers-->
+                                <div class="dropdown">
+                                {% if results and not share.shared %}
+                                    <button class="btn btn-link dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {% else %}
+                                <span style="display: inline-block;" data-toggle="tooltip" data-placement="right" title="To share your result, please start a new calculation first."> <!-- https://github.com/twbs/bootstrap/pull/10081 -->
+                                    <button class="btn btn-link" type="button" id="dropdownMenuButton" disabled>
+                                </span>
+                                {% endif %}
+                                        <span class="fas fa-users mr-2"></span>Share
+                                    </button>
+                                    {% if results and not share.shared %}
+                                        <div class="dropdown-menu p-4 text-muted" aria-labelledby="dropdownMenuButton" style="max-width: 200px;">
+                                            <p>Create a sharing link for this particular calculation</p>
+                                            <div class="text-left">
+                                                <button class="btn btn-primary" type="submit">
+                                                    <span class="fas fa-link mr-2"></span>Get link
+                                                </button>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div> 
+                    {% if results and not share.shared %}
+                        </form>
+                    {% endif %}
+                </div>
             </div>
+            
             <div class="row">
                 <div class="col-md-6">
                     <p class="lead">Unbiased parameter estimates from stochastic model</p>
@@ -79,7 +151,7 @@
                 </div>
             </div>
 
-            <div class="pb-2 mt-4 mb-2 border-bottom">
+            <div class="pb-0 mt-4 mb-2 border-bottom">
                 <h2 id="help">Help</h2>
             </div>
             <div class="row">
@@ -94,7 +166,7 @@
                         
                         Empty lines in table will be tolerated.
                     </p>
-                    <p> If you used our tool please cite our publication: <a href="https://doi.org/10.1101/550574">Julian Rode, Torsten Goerke, Lutz Brusch and Fabian Rost (2019). How fast are cells dividing: Probabilistic model of continuous labeling assays. bioRxiv doi:10.1101/550574</a> <br>
+                    <p> If you used our tool, please cite our publication: <a href="https://doi.org/10.1101/550574">Julian Rode, Torsten Goerke, Lutz Brusch and Fabian Rost (2019). How fast are cells dividing: Probabilistic model of continuous labeling assays. bioRxiv doi:10.1101/550574</a> <br>
                         The web service uses our free and open source python tool: <a href="https://github.com/fabianrost84/clapy">https://github.com/fabianrost84/clapy</a>.</p>
                     <p>For questions or suggestion please write an email to <a href="mailto:julian.rode1@tu-dresden.de">julian.rode1@tu-dresden.de</a>.</p> 
                     <p><a href="https://imc.zih.tu-dresden.de/imc/index.php?page=impressum">Impressum</a></p>
@@ -106,7 +178,7 @@
 
         <!--
         <ul>
-            {% for name, result in fit.items %}
+            {% for name, result in results.items %}
             <li>{{name}} - {{result.value}} - {{result.2sigma}}</li>
             {% endfor %}
         </ul>
@@ -133,7 +205,7 @@
         </script>
 
         <!-- Jump to results after calculation. -->
-        {% if assay %}
+        {% if results and not share.shared %}
             <script>
                 window.location.hash="result"; // https://www.reddit.com/r/flask/comments/33rozw/af_is_it_possible_to_render_template_so_that_it/cqnt2r6/
             </script>
@@ -149,7 +221,18 @@
                     //$(this).prop("disabled", true); // disable button
                 //}
                 $('#btn-calc').html('<span class="spinner-grow spinner-grow-sm mr-2" role="status" aria-hidden="true"></span>Calculating...').addClass('disabled');
+
+                //$('#id_formset').submit();
+
+                // Disable input form
+                // $('#fieldset').prop('disabled', true);
             });
+
+            //$('#id_formset').one('submit', function() {
+                //$(this).submit();
+                //$(this).find('button[type="submit"]').attr('disabled', true);
+                //$('#btn-calc').attr('disabled', true);
+            //});
        
             $('#btn-upload2').click(function() { // https://mdbootstrap.com/docs/jquery/components/spinners/#buttons
                 var field = document.forms["upload_form"]["file"].value;
@@ -174,5 +257,53 @@
                 $(this).next('.custom-file-label').addClass("selected").html(fileName); 
             });
         </script>
+
+        <!-- Copy to clipboard button; https://codepen.io/nathanlong/pen/ZpAmjv -->
+        <script>
+            // Attempts to use .execCommand('copy') on a created text field
+            // Falls back to a selectable alert if not supported
+            // Attempts to display status in Bootstrap tooltip
+
+            function copyToClipboard(text, el) {
+            var copyTest = document.queryCommandSupported('copy');
+            var elOriginalText = el.attr('data-original-title');
+
+            if (copyTest === true) {
+                var copyTextArea = document.createElement("textarea");
+                copyTextArea.value = text;
+                document.body.appendChild(copyTextArea);
+                copyTextArea.select();
+                try {
+                    var successful = document.execCommand('copy');
+                    var msg = successful ? 'Copied!' : 'Copy with Ctrl-c or cmd-c';
+                    el.attr('data-original-title', msg).tooltip('show');
+                } catch (err) {
+                    console.log('Unable to copy');
+                }
+                document.body.removeChild(copyTextArea);
+                el.attr('data-original-title', elOriginalText);
+            } else {
+                // Fallback if browser doesn't support .execCommand('copy')
+                window.prompt("Copy with Ctrl-c or cmd-c", text);
+            }
+            }
+
+            $(document).ready(function() {
+
+                // Select link text with a single click; https://stackoverflow.com/a/21967694/7192373
+                $("#copy-input").focus(function(){
+                    this.select();
+                });
+
+                // Copy to clipboard with button
+                
+                $('#copy-button').click(function() {
+                    var text = $(this).attr('data-clipboard-text'); // Grab any text in the attribute 'data-clipboard-text' and pass it to the copy function.
+                    var el = $(this);
+                    copyToClipboard(text, el);
+                });
+            });
+        </script>
+
     </body>
 </html>

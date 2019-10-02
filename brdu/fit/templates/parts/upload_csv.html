@@ -24,7 +24,7 @@
 {#% crispy upload_form %#}
 {% load static %}
 
-<form action="{% url 'fit:upload'%}?rows={{row}}" method="POST" enctype="multipart/form-data" name="upload_form" id="id_upload_form">
+<form action="{% url 'fit:upload'%}" method="POST" enctype="multipart/form-data" name="upload_form" id="id_upload_form">
 	{% csrf_token %}
 
 	{% if upload_form.errors %}
@@ -48,7 +48,7 @@
 	{% elif csv_inserted %}
 		<div class="alert alert-success alert-dismissible fade show" role="alert" style="display: table;">
 			<h4 class="alert-heading">Example data loaded</h4>
-			You can see, edit und submit the data for calculation <strong>on the left</strong>.
+			You can see, edit and submit the data for calculation <strong>on the left</strong>.
 			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 				<span aria-hidden="true">&times;</span>
 			</button>
@@ -68,7 +68,7 @@
 					<span class="fas fa-file-csv mr-2"></span>Upload <!-- https://getbootstrap.com/docs/4.0/utilities/spacing/ -->
 			</button>
 			<button type="submit" name="upload_csv" id="btn-upload" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				<span class="sr-only">Toggle Dropdown</span>
+				Example
 			</button>
 			<div class="dropdown-menu">
 				<a class="dropdown-item" href="{% url 'fit:download' %}?file=brdu_example_data.csv">

@@ -58,22 +58,43 @@ class Upload(models.Model):
     #user_filename = models.CharField(default='', max_length=255)
     file = models.FileField(upload_to=unique_file_path, validators=[ValidateCsv], max_length=255) # help_text='Upload your data in CSV format with <br /> column order as in the table on the left.') # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField.upload_to; https://stackoverflow.com/questions/26575635/django-increase-filefield-length
 
-class Assay(models.Model):
+class AbstractExperiment(models.Model):
     """
-    Holds all relevant values of a labeling assay for later reference like:
+    Abstract for models:
+        - Assay: linked to session id; temporary storage of data
+        - SharedExperiment: linked to share id; permanent storage of data
+    """
+    date_added = models.DateTimeField(auto_now_add=True) # Save date on creation of db entry.
+    date_last_visited = models.DateTimeField(auto_now=True) # Save date on every change of db entry.
+    visits = models.IntegerField(default=0) # Counter for visits.
+
+    share_id = models.CharField(max_length=255, unique=True, null=True) # https://docs.djangoproject.com/en/2.2/ref/models/fields/#null
+    run_time = models.FloatField(null=True)
+    experiment_id_collisions = models.IntegerField(null=True) # Counts collisions in Assay table until a unique id was found.
+    shared_experiment_id_collisions = models.IntegerField(null=True) # Counts collision in SharedExperiment table until a unique id was found.
+
+    experimental_data = JSONField(null=True)
+    calculation_results = JSONField(null=True) # https://stackoverflow.com/a/17970922/7192373
+    plot = models.ImageField(upload_to=unique_file_path, max_length=255)
+
+    class Meta:
+        abstract = True # denotes model as abstract for mixins/subclasses; http://charlesleifer.com/blog/django-patterns-model-inheritance/
+
+class Assay(AbstractExperiment):
+    """
+    Holds all relevant values of a labeling assay:
         - generated plot
         - estimated values (not implemented yet)
     """
     session = models.ForeignKey(Session, default='tfzs3e7d6x13029nvi88p9z7rhwwurcq', on_delete=models.CASCADE) # assay data is bound to a session and will be deleted together on removal of the session
-    date_added = models.DateTimeField(auto_now_add=True) # Save date on creation of db entry.
-    date_calculated = models.DateTimeField(auto_now=True) # Save date on change of db entry.
-    experimental_data = JSONField(null=True)
-    run_time = models.FloatField(null=True)
-    calculation_results = JSONField(null=True) # https://stackoverflow.com/a/17970922/7192373
-    plot = models.ImageField(upload_to=unique_file_path, max_length=255)
 
     @property
     def filename(self):
         return os.path.basename(self.plot.name)
 
     # https://stackoverflow.com/questions/5372934/how-do-i-get-django-admin-to-delete-files-when-i-remove-an-object-from-the-datab
+
+class SharedExperiment(AbstractExperiment):
+    """
+    Holds permanently the cell cycle data for sharing with others.
+    """

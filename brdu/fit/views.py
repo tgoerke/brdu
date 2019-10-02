@@ -32,7 +32,6 @@ from .calc import calc
 import timeit
 
 # Plot
-from .models import Assay
 from django.core.files.base import ContentFile
 import os
 from django.contrib.sessions.models import Session
@@ -40,8 +39,15 @@ from django.contrib.sessions.backends.db import SessionStore
 from django.shortcuts import get_object_or_404
 
 # Data storage (plots, CSV files)
+from .models import Assay
 from datetime import datetime
 from .utils import unique_file_path
+
+# Data for sharing
+from .models import SharedExperiment
+from .utils import generate_share_id
+from django.db.utils import IntegrityError
+from django.core.exceptions import FieldError
 
 # Debugging and logging
 from IPython import embed
@@ -51,13 +57,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 def form(request):
-    row_query_string = request.GET.get('rows', '10') # Get query string (?row=...)
-    try:
-        row = int(row_query_string)
-    except:
-        row = 10
+    rows = request.session.get('rows', 10)
 
-    InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
+    # Make sure, used row number is not less than the length of data rows
+    if 'data' in request.session:
+        if rows < len(request.session['data']):
+            rows = len(request.session['data'])
+
+    InputFormSet = formset_factory(InputForm, extra=0, can_delete=False, min_num=rows, validate_min=False)
     upload_form = UploadForm()
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
@@ -66,20 +73,9 @@ def form(request):
 
         #formset = InputFormSet(request.FILES)
         if 'clear' in request.POST:
-            request.session["data"] = []
-            return redirect('fit:index')
-        if 'add' in request.POST:
-            run_add = True
-        else:
-            run_add = False
-        if 'calc' in request.POST:
-            run_calc = True
-        else:
-            run_calc = False
-        if 'update' in request.POST:
-            run_update = True
-        else:
-            run_update = False
+            request.session['data'] = []
+            request.session['rows'] = 10
+            return redirect('fit:form')
 
         # check whether it's valid:
         if formset.is_valid():
@@ -89,19 +85,21 @@ def form(request):
             ncells = []
             for i in data_form:
                 print(len(i), i)
-                if len(i) == 3:
-                        print("asdasdasdsa")
-                        times.append(i['measurement_time'])
-                        datas.append(i['number_of_labeled_cells'])
-                        ncells.append(i['number_of_all_cells'])
+                if len(i) == 3: # Skip empty lines.
+                    times.append(i['measurement_time'])
+                    datas.append(i['number_of_labeled_cells'])
+                    ncells.append(i['number_of_all_cells'])
+            
             # save data
-            data = [i for i in zip(times,datas,ncells)]
+            data = [i for i in zip(times, datas, ncells)]
             print(data)
             request.session["data"] = data
+
             # hack to delete data
-            init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
+            init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i, k, l in request.session['data']]
             formset = InputFormSet(initial=init_data)
-            if run_calc:
+
+            if 'calc' in request.POST:
                 if len(ncells) == len(datas) and len(datas) == len(times) and len(times) > 0:
                     # Calculation
                     start_time = timeit.default_timer() # Measure the time for calculation; https://docs.python.org/3.7/library/timeit.html
@@ -130,20 +128,50 @@ def form(request):
                     # Save plot in media folder; save corresponding database entry; https://docs.djangoproject.com/en/2.2/ref/files/file/#additional-methods-on-files-attached-to-objects
                     #plot_filename = os.path.basename(assay.plot.name) # only filename, not the whole path
                     assay.plot.save('dummy.png', ContentFile(plot), save=False) # Filename doesn't matter, will be randomized anyway in course of this call.
-                    
-                    assay.save()
+                    plot = {'filepath_relative': assay.filename}
 
-                    context = {'formset': formset, 'fit': results, 'assay': assay, 'row': row, 'upload_form': upload_form}
+                    # Prepare sharing
+                    share = {}
+                    experiment_id_collisions = 0
+                    shared_experiment_id_collisions = 0
+                    unique_id_found = False
+                    while not unique_id_found: # Generate unique share id for this calculation.
+                        share['id'] = generate_share_id()
+                        assay.share_id = share['id']
+                        assay.experiment_id_collisions = experiment_id_collisions
+                        assay.shared_experiment_id_collisions = shared_experiment_id_collisions
+
+                        if not SharedExperiment.objects.filter(share_id=share['id']).exists(): # Check in sharing table for collisions; https://docs.djangoproject.com/en/3.0/ref/models/querysets/#exists
+                            """
+                            Collisions can occur in the Assay table with temporary
+                            stored results and preliminary share id or in the SharedExperiment
+                            table, where the permanently stored/shared results are located.
+                            """
+                            try:
+                                assay.save()
+                                unique_id_found = True
+                            except IntegrityError as error: # Share id already exists in Assay table.
+                                if any('UNIQUE constraint failed' in str(s) for s in error.args):
+                                    shared_experiment_id_collisions += 1
+                                    logger.warning('Share ID collision detected in table Assay. ID: {:s}; Counter: {:d}'.format(share['id'], shared_experiment_id_collisions))
+                                else: # raise all other IntegrityErrors
+                                    raise error
+                        else: # Share id already exists in SharedExperiment table.
+                            experiment_id_collisions += 1
+                            logger.warning('Share ID collision detected in table SharedExperiment. ID: {:s}; Counter: {:d}'.format(share['id'], experiment_id_collisions))
+
+                    context = {'formset': formset, 'results': results, 'plot': plot, 'row': rows, 'upload_form': upload_form, 'share': share}
                     return render(request, 'cell2.html', context)
 
-            if run_add:
-                url = '{:s}?rows={:d}'.format(reverse('fit:form'), row+10)
-                return redirect(url)
-            if run_update:
-                url = '{:s}?rows={:d}'.format(reverse('fit:form'), len(ncells))
-                return redirect(url)
-
-            context = {'formset': formset, 'row': row, 'upload_form': upload_form}
+            if 'add' in request.POST:
+                rows += 10
+                request.session['rows'] = rows
+                return redirect('fit:form')
+            if 'update' in request.POST:
+                rows = len(ncells)
+                request.session['rows'] = rows
+                return redirect('fit:form')
+            context = {'formset': formset, 'row': rows, 'upload_form': upload_form}
             return render(request, 'cell2.html', context)
 
         else:
@@ -152,29 +180,78 @@ def form(request):
     # If it's a GET request (or any other), we'll create a blank form.
     else:
         if "data" in request.session:
-            init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
+            init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i, k, l in request.session['data']]
             formset = InputFormSet(initial=init_data) 
         else:
             formset = InputFormSet()
 
-    context = {'formset': formset,'row': row, 'upload_form': upload_form}
+    context = {'formset': formset, 'row': rows, 'upload_form': upload_form}
     return  render(request, 'cell2.html', context)
 
+def share(request, share_id):
+    """
+    Loads shared experiment.
+    If a share id is queried for the first time, the experimental data
+    is copied to the sharing db table (from the session-based assay table)
+    for permanent storage.
+    """
+
+    share = {}
+    share['shared'] = True # Flag to tell the template that it's loading a sharing site.
+    share['id'] = share_id
+
+    # Load shared experiment
+    if SharedExperiment.objects.filter(share_id=share_id).exists():
+        shared_experiment = SharedExperiment.objects.get(share_id=share_id) # == GET-Request
+        share['new'] = False
+        shared_experiment.visits += 1
+    #except (SharedExperiment.DoesNotExist, FieldError): # Sharing link is called for the first time; == POST-Request
+    else:
+        experiment = get_object_or_404(Assay, share_id=share_id)
+        share['new'] = True
+
+        # Store experiment dataset in database permanently
+        shared_experiment = SharedExperiment()
+        shared_experiment.share_id = share_id
+        shared_experiment.experiment_id_collisions = experiment.experiment_id_collisions
+        shared_experiment.shared_experiment_id_collisions = experiment.shared_experiment_id_collisions
+        shared_experiment.experimental_data = experiment.experimental_data
+        shared_experiment.run_time = experiment.run_time
+        shared_experiment.calculation_results = experiment.calculation_results
+        shared_experiment.plot.save('shared/filename.png', content=experiment.plot.file, save=False)
+
+    shared_experiment.save() # Resave DB entry in order to update "date_last_visited"
+
+    # Load data, plot, results
+    InputFormSet = formset_factory(InputForm, extra=0, can_delete=False, validate_min=False)
+    init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i, k ,l in shared_experiment.experimental_data]
+    formset = InputFormSet(initial=init_data)
+
+    filepath_absolute = shared_experiment.plot.name
+    filepath_relative = filepath_absolute.replace(settings.MEDIA_ROOT + '/', '') # Remove MEDIA_ROOT from filepath.
+    #plot = {'filename': os.path.basename(shared_experiment.plot.name)}
+    plot = {'filepath_relative': filepath_relative}
+
+    upload_form = UploadForm()
+
+    # Save number of rows in session.
+    rows = len(init_data)
+    request.session['rows'] = rows
+
+    context = {'formset': formset, 'upload_form': upload_form, 'share': share, 'results': shared_experiment.calculation_results, 'plot': plot}
+    return render(request, 'cell2.html', context)
+
 def upload(request):
-    row_query_string = request.GET.get('rows', '10') # Get query string (?row=...)
-    try:
-        row = int(row_query_string)
-    except:
-        row = 10
+    rows = request.session.get('rows', 10)
 
     if request.method != 'POST':
         # No data submitted; create a blank upload_form.
         upload_form = UploadForm()
 
         # No data submitted; create blank formset or formset with old data.
-        InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
+        InputFormSet = formset_factory(InputForm, extra=0, can_delete=False, min_num=rows, validate_min=False)
         if "data" in request.session: # old data
-            init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
+            init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i, k, l in request.session['data']]
             formset = InputFormSet(initial=init_data) 
         else: # blank form
             formset = InputFormSet()
@@ -187,27 +264,30 @@ def upload(request):
             # Parse CSV file and overwrite formset data
             df = pd.read_csv(upload.file, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
             init_data = df.to_dict('records')
-            InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
+            InputFormSet = formset_factory(InputForm, extra=0, can_delete=False, validate_min=False)
             formset = InputFormSet(initial=init_data)
-            row = len(init_data)
-            InputFormSet.min_num = row # Clear empty lines
+            
+            rows = len(init_data)
+            InputFormSet.min_num = rows # Clear empty lines
+            request.session['rows'] = rows # Save new number of rows in session.
 
             # Delete file
             #upload.file.delete() # delete CSV file; Is done now by 'django_cleanup' automatically.
             upload.delete() # delete database entry
         else:
             # Invalid form, use old data.
-            InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=row, validate_min=False)
+            InputFormSet = formset_factory(InputForm, extra=0, can_delete=False, min_num=rows, validate_min=False)
             if "data" in request.session:
-                init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
+                init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i, k, l in request.session['data']]
                 formset = InputFormSet(initial=init_data) 
             else:
                 formset = InputFormSet()
 
-    context = {'row': row, 'formset': formset, 'upload_form': upload_form}
+    context = {'row': rows, 'formset': formset, 'upload_form': upload_form}
     return render(request, 'cell2.html', context)
 
 def download(request):
+    # Handle query strings.
     filename = request.GET.get('file', '') # ?file=...
     destination = request.GET.get('destination', 'user') # &destination=...
 
@@ -234,16 +314,18 @@ def download(request):
                     df = pd.read_csv(f, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
                 init_data = df.to_dict('records')
 
+                # Save new number of rows in session.
+                rows = len(init_data)
+                request.session['rows'] = rows
+
                 # Create empty forms
-                InputFormSet = formset_factory(InputForm,extra=0,can_delete=False)
+                InputFormSet = formset_factory(InputForm, extra=0, can_delete=False)
                 upload_form = UploadForm()
 
                 # Overwrite formset data
                 formset = InputFormSet(initial=init_data)
-                row = len(init_data)
-                InputFormSet.min_num = row # Clear empty lines
 
-                context = {'row': row, 'formset': formset, 'upload_form': upload_form, 'csv_inserted': True}
+                context = {'row': rows, 'formset': formset, 'upload_form': upload_form, 'csv_inserted': True}
                 return render(request, 'cell2.html', context)
             else: # Non-existing file.
                 raise Http404

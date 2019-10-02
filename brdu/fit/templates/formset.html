@@ -1,9 +1,9 @@
 {% load widget_tweaks %}
 
-<form method="post" action="{% url 'fit:form' %}?rows={{row}}" id="id_formset" novalidate>
+<form method="post" action="{% url 'fit:form' %}" id="id_formset" novalidate>
     {% csrf_token %}
     {{ formset.management_form }}
-
+    
     {% if formset.errors %}
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <h4 class="alert-heading">Something is wrong with your data</h4>
@@ -12,7 +12,7 @@
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-    {% elif assay %}
+    {% elif results and not share.shared %}
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         <h4 class="alert-heading">Calculation finished</h4>
         You can find the result <a href="#result" class="alert-link">below</a>.
@@ -22,6 +22,7 @@
     </div>
     {% endif %}
 
+    <fieldset id="fieldset">
     <div class="form-group">
         <table>
             {% for form in formset %}
@@ -29,8 +30,9 @@
                 {% if forloop.first %}
                     <thead>
                     <tr>
+                        <th class="text-center" scope="col"></th>
                         {% for field in form.visible_fields %}
-                            <th scope="col">{{ field.label|capfirst }}</th>
+                            <th class="text-center" scope="col">{{ field.label|capfirst }}</th>
                         {% endfor %}
                     </tr>
                     </thead>
@@ -38,8 +40,15 @@
 
                 <tr>
                     {% for field in form.visible_fields %}
-
-                        <td >
+                        <td>
+                        {% if forloop.first %}
+                            <!--div class="input-group"-->
+                                <div class="input-group-prepend" style="min-width: 5.2ex;">
+                                    <span class="input-group-text" id="inputGroupPrepend" style="width: 100%; justify-content: center;">{{ forloop.parentloop.counter }}</span>
+                                </div>
+                        </td>
+                        <td>
+                        {% endif %}
                             {# Include the hidden fields in the form #}
                             {% if forloop.first %}
                                 {% for hidden in form.hidden_fields %}
@@ -49,7 +58,7 @@
 
                             {% if form.is_bound %}
                                 {% if field.errors %}
-                                    {% render_field field class="form-control is-invalid" data-toggle="tooltip" data-html="true" title=field.errors.as_html_text %}
+                                    {% render_field field class="form-control is-invalid text-right" data-toggle="tooltip" data-html="true" title=field.errors.as_html_text %}
 
                                     {% comment %}
                                         {% for error in field.errors %}
@@ -61,13 +70,15 @@
 
                                 {% else %}
                                     {#% render_field field class="form-control is-valid" %#}
-                                    {% render_field field class="form-control" %}
+                                    {% render_field field class="form-control text-right" %}
                                 {% endif %}
                             {% else %}
-                                {% render_field field class="form-control" %}
+                                {% render_field field class="form-control text-right" %}
                             {% endif %}
+                        {% if forloop.first %}
+                            <!--/div-->
+                        {% endif %}
                         </td>
-
                     {% endfor %}
                 </tr>
 
@@ -77,6 +88,8 @@
     <p class="help-block">
         Depending on your location settings, the optional decimal separator for time is '.' or ','.
     </p>
+    </fieldset>
+
 
     <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups"> <!-- https://getbootstrap.com/docs/4.3/components/button-group/#button-toolbar -->
         <!--div style="margin-right:5px;"--> <!-- https://fontawesome.com/how-to-use/on-the-web/styling/fixed-width-icons -->

@@ -41,8 +41,8 @@ and initialize pipenv with
 If you are going to start the server for the first time or if the Django models have changed, you need to generate the database file first.
 
     $ cd brdu
-    $ python manage.py makemigrations
-    $ python manage.py migrate
+    $ python manage.py makemigrations fit
+    $ python manage.py migrate --run-syncdb
 
 ### Static files
 
@@ -76,6 +76,24 @@ Run the server:
 The Cell Cycle Analyzer can be found under: http://127.0.0.1:8000/
 
 ## Deployment
+
+### Disable debug mode
+
+Set [```DEBUG = False```](https://docs.djangoproject.com/en/2.2/ref/settings/#debug) in ```settings.py``` to disable the display of detailed traceback information, which could pose a security risk.
+
+### Set ```ALLOWED_HOSTS```
+
+[```ALLOWED_HOSTS```](https://docs.djangoproject.com/en/2.2/ref/settings/#std:setting-ALLOWED_HOSTS) must be set in ```settings.py``` according to your server. Otherwise this will result in all requests being returned as *Bad Request (400)*.
+
+### Set a new ```SECRET_KEY```
+
+Change the [```SECRET_KEY```](https://docs.djangoproject.com/en/2.2/ref/settings/#secret-key) in ```settings.py``` to a unique, unpredictable value. Do not carry the key from development (for instance from this GitHub repository) over to the deployment server!
+
+Django creates an unique key automatically when a [new project is started](https://docs.djangoproject.com/en/2.2/ref/django-admin/#django-admin-startproject).
+
+    $ django-admin startproject myproject
+
+So you can also use this as a generator for your server key.
 
 ### Sessions
 

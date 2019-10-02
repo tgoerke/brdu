@@ -3,7 +3,8 @@ run/
 brdu/static
 *.pyc
 gunicorn_start.sh
-brdu/media/*
+brdu/media/*.png
+brdu/media/shared/*.png
 brdu-mint.code-workspace
 .vscode/settings.json
 brdu/fit/static/123.png
