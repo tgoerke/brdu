@@ -64,7 +64,7 @@ def form(request):
         if rows < len(request.session['data']):
             rows = len(request.session['data'])
 
-    InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=rows, validate_min=False)
+    InputFormSet = formset_factory(InputForm, extra=0, can_delete=False, min_num=rows, validate_min=False)
     upload_form = UploadForm()
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
@@ -91,12 +91,12 @@ def form(request):
                     ncells.append(i['number_of_all_cells'])
             
             # save data
-            data = [i for i in zip(times,datas,ncells)]
+            data = [i for i in zip(times, datas, ncells)]
             print(data)
             request.session["data"] = data
 
             # hack to delete data
-            init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
+            init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i, k, l in request.session['data']]
             formset = InputFormSet(initial=init_data)
 
             if 'calc' in request.POST:
@@ -145,7 +145,7 @@ def form(request):
                             """
                             Collisions can occur in the Assay table with temporary
                             stored results and preliminary share id or in the SharedExperiment
-                            table, where the permanently stored/shared results are.
+                            table, where the permanently stored/shared results are located.
                             """
                             try:
                                 assay.save()
@@ -180,7 +180,7 @@ def form(request):
     # If it's a GET request (or any other), we'll create a blank form.
     else:
         if "data" in request.session:
-            init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
+            init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i, k, l in request.session['data']]
             formset = InputFormSet(initial=init_data) 
         else:
             formset = InputFormSet()
@@ -224,15 +224,19 @@ def share(request, share_id):
 
     # Load data, plot, results
     InputFormSet = formset_factory(InputForm, extra=0, can_delete=False, validate_min=False)
-    init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in shared_experiment.experimental_data]
+    init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i, k ,l in shared_experiment.experimental_data]
     formset = InputFormSet(initial=init_data)
 
     filepath_absolute = shared_experiment.plot.name
-    filepath_relative = filepath_absolute.replace(settings.MEDIA_ROOT + '/', '') 
+    filepath_relative = filepath_absolute.replace(settings.MEDIA_ROOT + '/', '') # Remove MEDIA_ROOT from filepath.
     #plot = {'filename': os.path.basename(shared_experiment.plot.name)}
     plot = {'filepath_relative': filepath_relative}
 
     upload_form = UploadForm()
+
+    # Save number of rows in session.
+    rows = len(init_data)
+    request.session['rows'] = rows
 
     context = {'formset': formset, 'upload_form': upload_form, 'share': share, 'results': shared_experiment.calculation_results, 'plot': plot}
     return render(request, 'cell2.html', context)
@@ -247,7 +251,7 @@ def upload(request):
         # No data submitted; create blank formset or formset with old data.
         InputFormSet = formset_factory(InputForm, extra=0, can_delete=False, min_num=rows, validate_min=False)
         if "data" in request.session: # old data
-            init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
+            init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i, k, l in request.session['data']]
             formset = InputFormSet(initial=init_data) 
         else: # blank form
             formset = InputFormSet()
@@ -260,7 +264,7 @@ def upload(request):
             # Parse CSV file and overwrite formset data
             df = pd.read_csv(upload.file, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
             init_data = df.to_dict('records')
-            InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=rows, validate_min=False)
+            InputFormSet = formset_factory(InputForm, extra=0, can_delete=False, validate_min=False)
             formset = InputFormSet(initial=init_data)
             
             rows = len(init_data)
@@ -272,9 +276,9 @@ def upload(request):
             upload.delete() # delete database entry
         else:
             # Invalid form, use old data.
-            InputFormSet = formset_factory(InputForm,extra=0,can_delete=False, min_num=rows, validate_min=False)
+            InputFormSet = formset_factory(InputForm, extra=0, can_delete=False, min_num=rows, validate_min=False)
             if "data" in request.session:
-                init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i,k,l in request.session['data']]
+                init_data = [{'measurement_time': i, 'number_of_labeled_cells': k, 'number_of_all_cells': l} for i, k, l in request.session['data']]
                 formset = InputFormSet(initial=init_data) 
             else:
                 formset = InputFormSet()
@@ -310,15 +314,16 @@ def download(request):
                     df = pd.read_csv(f, header=None, names=['measurement_time', 'number_of_labeled_cells', 'number_of_all_cells'])
                 init_data = df.to_dict('records')
 
+                # Save new number of rows in session.
+                rows = len(init_data)
+                request.session['rows'] = rows
+
                 # Create empty forms
-                InputFormSet = formset_factory(InputForm,extra=0,can_delete=False)
+                InputFormSet = formset_factory(InputForm, extra=0, can_delete=False)
                 upload_form = UploadForm()
 
                 # Overwrite formset data
                 formset = InputFormSet(initial=init_data)
-                rows = len(init_data)
-                InputFormSet.min_num = rows # Clear empty lines
-                request.session['rows'] = rows # Save new number of rows in session.
 
                 context = {'row': rows, 'formset': formset, 'upload_form': upload_form, 'csv_inserted': True}
                 return render(request, 'cell2.html', context)
