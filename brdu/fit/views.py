@@ -168,7 +168,10 @@ def form(request):
                 request.session['rows'] = rows
                 return redirect('fit:form')
             if 'update' in request.POST:
-                rows = len(ncells)
+                if len(ncells) > 0:
+                    rows = len(ncells)
+                else:
+                    rows = 1
                 request.session['rows'] = rows
                 return redirect('fit:form')
             context = {'formset': formset, 'row': rows, 'upload_form': upload_form}
